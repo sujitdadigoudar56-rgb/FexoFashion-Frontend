@@ -12,6 +12,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # VERCEL_DEPLOY_HOOK_URL lives under the "production" Environment's
+    # secrets (not plain repository secrets) — a job only gets access to an
+    # environment's secrets if it explicitly targets that environment.
+    environment: production
     steps:
       - name: Call Vercel deploy hook
         env:
