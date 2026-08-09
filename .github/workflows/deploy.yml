@@ -1,0 +1,17 @@
+name: Trigger Vercel Deploy
+
+# The Vercel project was imported via its public URL rather than through
+# Vercel's GitHub App, so no webhook was ever installed on this repo and
+# pushes to main never triggered a build. This calls the Vercel Deploy
+# Hook (Settings -> Git -> Deploy Hooks in the Vercel dashboard) as a
+# stand-in until that connection is fixed properly.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Vercel deploy hook
+        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
