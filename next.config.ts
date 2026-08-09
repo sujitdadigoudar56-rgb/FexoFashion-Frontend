@@ -7,6 +7,7 @@ import type { NextConfig } from "next";
 const ADMIN_URL = "https://fexofashion.onrender.com/admin/";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
   async redirects() {
     return [
       {
