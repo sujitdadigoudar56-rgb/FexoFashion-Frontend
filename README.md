@@ -1,50 +1,71 @@
 # FEXO — Frontend
 
-Templates and static assets for the FEXO storefront: light, minimal
-Zara/Snitch-style design (white/off-white with dark text), GSAP scroll
-reveals + Lenis smooth scroll + magnetic buttons + animated loader, fully
-responsive. The homepage hero keeps a full-bleed dark-overlay image for
-contrast, matching how those sites treat hero banners — everything else
-on the site is light.
+A [Next.js](https://nextjs.org) (App Router + TypeScript) storefront for
+FEXO — light, minimal Zara/Snitch-style design (white/off-white with dark
+text), GSAP scroll reveals + Lenis smooth scroll + magnetic buttons +
+animated loader, fully responsive.
+
+This app was converted from the previous Django-templates frontend
+(`templates/` + `static/`, now removed) that the [backend](../Fexo_backend)
+repo used to render server-side. It is now a standalone app.
+
+## Status: mock-data phase (no backend wiring yet)
+
+The Django backend has no REST API today (no DRF, no serializers) — it's
+still a plain server-rendered Django project. So for now this app runs
+entirely on:
+
+- **Mock content** — `src/lib/mock-data.ts` (products, categories,
+  collections, banners, testimonials, journal posts, FAQs, etc.), read
+  through the accessor functions in `src/lib/data.ts`.
+- **Client-side mock cart / wishlist / auth** — `src/context/*.tsx`,
+  persisted to `localStorage` (see `src/lib/storage.ts`). Add-to-bag,
+  wishlist toggling, coupon codes, sign up / sign in, saved addresses, and
+  placing an order all actually work today, just without a server behind
+  them.
+
+Every one of those seams has a `// PHASE 2:` comment marking the Django
+REST endpoint it should call once the backend grows an API — wiring this
+app up to the real backend is deliberately a separate, later piece of
+work.
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+```bash
+npm run build   # production build (also type-checks)
+npm run lint    # ESLint
+```
+
+## Structure
 
 ```
-frontend/
-├── templates/     # Django templates (server-rendered)
-│   ├── accounts/ cart/ orders/ products/ website/ wishlist/ admin/
-│   └── base.html
-└── static/
-    ├── css/fexo.css
-    └── js/fexo.js  # vanilla JS + GSAP/Lenis, no build step, no bundler
+src/
+├── app/          # routes (App Router) — one folder per URL segment
+├── components/
+│   ├── chrome/   # nav, footer, loader, search overlay, mobile menu,
+│   │             # Lenis/GSAP wiring (ports of the old fexo.js)
+│   ├── product/  # product card/grid/gallery/actions/reviews
+│   ├── ui/       # small shared bits (page header, star rating, ...)
+│   └── account/  # account sidebar, auth guard
+├── context/      # Cart / Wishlist / Auth / Message providers (mock, see above)
+└── lib/          # types, mock data, data-access functions, pricing math,
+                   # localStorage helpers
 ```
 
-## Important: this is not a standalone app
+`src/app/globals.css` is `fexo.css` ported close to as-is — same CSS
+custom properties and `.fx-*` class names as the original templates, so
+markup and styling stay easy to cross-reference against the old repo's
+git history.
 
-There's **no build step, no dev server, no `package.json`** here — these
-templates use Django's template language (`{% %}` / `{{ }}` tags) and are
-rendered server-side by the [backend](../backend) repo. This repo can't
-run or be previewed on its own; it needs the backend process to render
-and serve it.
+## Editing
 
-To see it working, clone the [backend repo](../backend) alongside this
-one and follow its README:
-
-```
-workspace/
-├── backend/   <- Django app, run this
-└── frontend/  <- this repo, consumed by the backend
-```
-
-By default the backend looks for a sibling `../frontend` folder (override
-via `FRONTEND_DIR` in the backend's `.env` if your checkout differs).
-
-## Editing templates/assets
-
-- Templates use standard Django template inheritance — `base.html` is the
-  shared shell; page templates `{% extends "base.html" %}`.
-- Context variables available in templates come from the backend's views
-  and context processors (cart summary, wishlist summary, nav categories,
-  site settings, admin dashboard stats) — check the backend repo's
-  `context_processors.py` files in each app to see what's available
-  globally vs. per-view.
-- `static/css/fexo.css` and `static/js/fexo.js` are hand-written, no
-  preprocessor/bundler — edit directly and reload.
+- Content: edit `src/lib/mock-data.ts`.
+- Data-access seam (what becomes real API calls in Phase 2): `src/lib/data.ts`.
+- Styling: `src/app/globals.css`, hand-written, no preprocessor.
