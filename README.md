@@ -69,5 +69,3 @@ git history.
 - Content: edit `src/lib/mock-data.ts`.
 - Data-access seam (what becomes real API calls in Phase 2): `src/lib/data.ts`.
 - Styling: `src/app/globals.css`, hand-written, no preprocessor.
-
-- 
