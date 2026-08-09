@@ -14,4 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call Vercel deploy hook
-        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+        env:
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK_URL secret is empty or not set — check Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          echo "Secret is set, length: ${#HOOK_URL} chars"
+          status=$(curl -sS -o /tmp/response.json -w "%{http_code}" -X POST "$HOOK_URL")
+          echo "Response body: $(cat /tmp/response.json)"
+          echo "HTTP status: $status"
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Deploy hook returned non-2xx status $status"
+            exit 1
+          fi
