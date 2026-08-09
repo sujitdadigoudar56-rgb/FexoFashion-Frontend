@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/admin", "destination": "https://fexofashion.onrender.com/admin/", "permanent": false },
+    { "source": "/admin/:path*", "destination": "https://fexofashion.onrender.com/admin/:path*", "permanent": false }
+  ]
+}
