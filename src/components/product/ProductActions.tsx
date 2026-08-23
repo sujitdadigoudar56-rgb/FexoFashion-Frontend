@@ -1,12 +1,11 @@
 'use client';
 
-// Ports the size picker + qty stepper + "Add to Bag" form from
-// products/product_detail.html.
-
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { inStock, sizesList } from '@/lib/product';
 import type { Product } from '@/lib/types';
+import FexoMirror from '@/components/mirror/Fexomirror';
 import QtyBox from './QtyBox';
 
 export default function ProductActions({ product }: { product: Product }) {
@@ -14,7 +13,17 @@ export default function ProductActions({ product }: { product: Product }) {
   const [variantId, setVariantId] = useState<number | null>(product.variants[0]?.id ?? null);
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
+  const router = useRouter();
   const stocked = inStock(product);
+  const [buying, setBuying] = useState(false);
+  const [mirrorOpen, setMirrorOpen] = useState(false);
+
+  const handleBuyNow = async () => {
+    setBuying(true);
+    await addItem(product.slug, product.name, quantity, variantId);
+    setBuying(false);
+    router.push('/checkout');
+  };
 
   return (
     <div>
@@ -70,6 +79,32 @@ export default function ProductActions({ product }: { product: Product }) {
           {stocked ? 'Add to Bag' : 'Out of Stock'}
         </button>
       </div>
+
+      <button
+        type="button"
+        className="fx-btn fx-btn-block"
+        style={{ marginTop: 14 }}
+        disabled={!stocked || buying}
+        onClick={handleBuyNow}
+      >
+        {buying ? 'Please wait…' : 'Buy Now'}
+      </button>
+
+      <button
+        type="button"
+        className="fx-btn fx-btn-block"
+        style={{ marginTop: 14 }}
+        onClick={() => setMirrorOpen(true)}
+      >
+        Try in Fexo Mirror
+      </button>
+
+      <FexoMirror
+        open={mirrorOpen}
+        onClose={() => setMirrorOpen(false)}
+        garmentImageUrl={product.images?.[0]?.image ?? ''}
+        garmentName={product.name}
+      />
     </div>
   );
 }
