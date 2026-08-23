@@ -54,32 +54,32 @@ export default function Nav() {
           <li><Link href="/contact">Contact</Link></li>
         </ul>
         <div className="fx-nav-icons">
-          <button id="fx-search-trigger" aria-label="Search" onClick={() => setSearchOpen(true)}>
+          <button id="fx-search-trigger" aria-label="Search" title="Search" onClick={() => setSearchOpen(true)}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.3-4.3" />
             </svg>
           </button>
-          <Link href={isAuthenticated ? '/accounts/dashboard' : '/accounts/login'} aria-label="Account">
+          <Link href={isAuthenticated ? '/accounts/dashboard' : '/accounts/login'} aria-label="Account" title="Account">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <circle cx="12" cy="8" r="4" />
               <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" />
             </svg>
           </Link>
-          <Link href="/wishlist" aria-label="Wishlist">
+          <Link href="/wishlist" aria-label="Wishlist" title="Wishlist">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.8.6 5 2.2C11.8 4.6 13.6 3.7 15.6 4c3.6.5 5.2 4 3.6 7.7C16.7 16.4 12 21 12 21z" />
             </svg>
             {wishlistItems.length > 0 && <span className="fx-badge">{wishlistItems.length}</span>}
           </Link>
-          <Link href="/cart" aria-label="Bag">
+          <Link href="/cart" aria-label="Bag" title="Bag">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M6 8h12l-1 12H7L6 8z" />
               <path d="M9 8V6a3 3 0 0 1 6 0v2" />
             </svg>
             {itemCount > 0 && <span className="fx-badge">{itemCount}</span>}
           </Link>
-          <button className="fx-mobile-toggle" aria-label="Menu" onClick={() => setMobileOpen((v) => !v)}>
+          <button className="fx-mobile-toggle" aria-label="Menu" title="Menu" onClick={() => setMobileOpen((v) => !v)}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>

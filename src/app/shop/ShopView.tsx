@@ -2,6 +2,7 @@
 // /shop, /shop/category/[slug] and /shop/collection/[slug].
 
 import ProductGrid from '@/components/product/ProductGrid';
+import Breadcrumbs from '../../components/ui/Breadcrumbs';
 import PageHeader from '@/components/ui/PageHeader';
 import { getCategories, getFilteredProducts, type ProductFilters } from '@/lib/data';
 import type { Category, Collection } from '@/lib/types';
@@ -17,6 +18,8 @@ export interface ShopSearchParams {
   size?: string;
   sort?: string;
   page?: string;
+  is_new_arrival?: string;
+  is_best_seller?: string;
 }
 
 export default async function ShopView({
@@ -32,6 +35,8 @@ export default async function ShopView({
   const sort = (searchParams.sort as ProductFilters['sort']) ?? 'newest';
   const categorySlug = categoryObj?.slug ?? searchParams.category;
   const collectionSlug = collectionObj?.slug ?? searchParams.collection;
+  const isNewArrival = searchParams.is_new_arrival === 'true';
+  const isBestSeller = searchParams.is_best_seller === 'true';
 
   const result = await getFilteredProducts({
     category: categorySlug,
@@ -41,7 +46,9 @@ export default async function ShopView({
     size: searchParams.size,
     sort,
     page: searchParams.page ? Number(searchParams.page) : 1,
-  });
+    ...(isNewArrival ? { isNewArrival: true } : {}),
+    ...(isBestSeller ? { isBestSeller: true } : {}),
+  } as ProductFilters);
 
   const baseParams: Record<string, string> = {};
   if (categorySlug) baseParams.category = categorySlug;
@@ -50,12 +57,39 @@ export default async function ShopView({
   if (searchParams.max_price) baseParams.max_price = searchParams.max_price;
   if (searchParams.size) baseParams.size = searchParams.size;
   if (sort) baseParams.sort = sort;
+  if (isNewArrival) baseParams.is_new_arrival = 'true';
+  if (isBestSeller) baseParams.is_best_seller = 'true';
 
-  const eyebrow = categoryObj ? 'Category' : collectionObj ? 'Collection' : 'Shop';
-  const title = categoryObj?.name ?? collectionObj?.name ?? 'All Products';
+  const eyebrow = categoryObj
+    ? 'Category'
+    : collectionObj
+    ? 'Collection'
+    : isNewArrival
+    ? 'Just In'
+    : isBestSeller
+    ? 'Popular'
+    : 'Shop';
+  const title = categoryObj?.name
+    ?? collectionObj?.name
+    ?? (isNewArrival ? 'New Arrivals' : isBestSeller ? 'Best Sellers' : 'All Products');
+
+  const basePath = categoryObj
+    ? `/shop/category/${categoryObj.slug}`
+    : collectionObj
+    ? `/shop/collection/${collectionObj.slug}`
+    : '/shop';
 
   return (
     <>
+      <div className="fx-container" style={{ paddingTop: 130 }}>
+        <Breadcrumbs
+          items={[
+            { label: 'Shop', href: '/shop' },
+            ...(categoryObj ? [{ label: categoryObj.name }] : []),
+            ...(collectionObj ? [{ label: collectionObj.name }] : []),
+          ]}
+        />
+      </div>
       <PageHeader eyebrow={eyebrow} title={title} />
       <div className="fx-section" style={{ paddingTop: 56 }}>
         <div className="fx-container" style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 48 }}>
@@ -67,7 +101,7 @@ export default async function ShopView({
             </div>
             <ProductGrid products={result.items} emptyMessage="No products match your filters yet." />
             {result.numPages > 1 && (
-              <ShopPagination page={result.page} numPages={result.numPages} baseParams={baseParams} />
+              <ShopPagination page={result.page} numPages={result.numPages} baseParams={baseParams} basePath={basePath} />
             )}
           </div>
         </div>

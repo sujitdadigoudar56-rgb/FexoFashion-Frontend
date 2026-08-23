@@ -7,6 +7,14 @@ import Link from 'next/link';
 export default function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <div id="fx-mobile-menu" className={`fx-mobile-menu${open ? ' fx-open' : ''}`}>
+      <button
+        type="button"
+        className="fx-mobile-menu-close"
+        aria-label="Close menu"
+        onClick={onClose}
+      >
+        &times;
+      </button>
       <Link href="/shop" onClick={onClose}>Shop</Link>
       <Link href="/about" onClick={onClose}>About</Link>
       <Link href="/journal" onClick={onClose}>Journal</Link>

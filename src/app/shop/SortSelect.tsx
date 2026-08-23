@@ -6,10 +6,14 @@
 import { useRouter } from 'next/navigation';
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'newest', label: 'New Arrivals' },
   { value: 'price_low', label: 'Price: Low to High' },
   { value: 'price_high', label: 'Price: High to Low' },
-  { value: 'name', label: 'Name' },
+  { value: 'popularity', label: 'Popularity' },
+  { value: 'rating', label: 'Customer Rating' },
+  { value: 'discount_low', label: 'Discount: Low to High' },
+  { value: 'discount_high', label: 'Discount: High to High' }, // fix label below
 ];
 
 export default function SortSelect({

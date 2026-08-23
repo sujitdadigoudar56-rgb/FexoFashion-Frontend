@@ -42,7 +42,7 @@ export default function SearchOverlay({ open, onClose }: { open: boolean; onClos
           ref={inputRef}
           type="text"
           id="fx-search-input"
-          placeholder="Search FEXO..."
+          placeholder="Search for products..."
           autoComplete="off"
           value={query}
           onChange={(e) => setQuery(e.target.value)}

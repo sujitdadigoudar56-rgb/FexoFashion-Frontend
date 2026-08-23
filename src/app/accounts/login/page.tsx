@@ -34,8 +34,7 @@ export default function LoginPage() {
     // Read `next` at submit time (not via useSearchParams()) to avoid
     // needing a Suspense boundary just for this page.
     const next = new URLSearchParams(window.location.search).get('next');
-    router.push(next || '/accounts/dashboard');
-  };
+    router.push(next || '/');  };
 
   return (
     <div className="fx-auth-wrap">

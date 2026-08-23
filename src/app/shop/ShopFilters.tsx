@@ -74,7 +74,9 @@ export default function ShopFilters({
           ))}
         </select>
 
-        <button type="submit" className="fx-btn fx-btn-block">Apply Filters</button>
+        <button type="submit" className="fx-btn fx-btn-block">
+          Apply Filters{(baseParams.min_price || baseParams.max_price || baseParams.size) ? ' •' : ''}
+        </button>
       </form>
     </aside>
   );

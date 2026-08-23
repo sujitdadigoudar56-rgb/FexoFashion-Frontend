@@ -11,6 +11,7 @@ import WishlistButton from '@/components/product/WishlistButton';
 import StarRating from '@/components/ui/StarRating';
 import { getCompleteTheLook, getProductBySlug, getRelatedProducts } from '@/lib/data';
 import { averageRating, isOnSale, reviewCount } from '@/lib/product';
+import SizeChart from '@/components/product/sizechart';
 
 export async function generateMetadata({
   params,
@@ -78,12 +79,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <p className="fx-muted" style={{ marginTop: 12, lineHeight: 1.7 }}>{product.fabric_details}</p>
               </details>
             )}
-            {product.size_guide && (
               <details>
                 <summary style={detailHeadingStyle}>Size Guide</summary>
-                <p className="fx-muted" style={{ marginTop: 12, lineHeight: 1.7 }}>{product.size_guide}</p>
+                <SizeChart note={product.size_guide} />
               </details>
-            )}
           </div>
         </div>
       </div>
