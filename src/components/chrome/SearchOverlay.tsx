@@ -33,15 +33,15 @@ export default function SearchOverlay({ open, onClose }: { open: boolean; onClos
   }, [query]);
 
   return (
-    <div id="fx-search-overlay" className={`fx-search-overlay${open ? ' fx-open' : ''}`}>
-      <button id="fx-search-close" className="fx-search-close" onClick={onClose} aria-label="Close search">
+    <div id="fx-search-dropdown" className={`fx-search-dropdown${open ? ' fx-open' : ''}`}>
+      <button className="fx-search-dropdown-close" onClick={onClose} aria-label="Close search">
         &times;
       </button>
       <div className="fx-search-inner">
         <input
           ref={inputRef}
           type="text"
-          id="fx-search-input"
+          id="fx-search-input-dropdown"
           placeholder="Search for products..."
           autoComplete="off"
           value={query}

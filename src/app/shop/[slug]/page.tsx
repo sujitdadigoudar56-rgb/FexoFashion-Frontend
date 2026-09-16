@@ -8,6 +8,7 @@ import ProductGallery from '@/components/product/ProductGallery';
 import ProductGrid from '@/components/product/ProductGrid';
 import ProductReviews from '@/components/product/ProductReviews';
 import RecentlyViewed from '@/components/product/RecentlyViewed';
+import SizeChart from '@/components/product/SizeChart';
 import WishlistButton from '@/components/product/WishlistButton';
 import StarRating from '@/components/ui/StarRating';
 import {
@@ -203,16 +204,7 @@ export default async function ProductDetailPage({
                 Size Guide
               </summary>
 
-              <p
-                className="fx-muted"
-                style={{
-                  marginTop: 12,
-                  lineHeight: 1.7,
-                }}
-              >
-                {product.size_guide ||
-                  'Please refer to the product measurements for the best fit.'}
-              </p>
+              <SizeChart note={product.size_guide} />
             </details>
           </div>
         </div>

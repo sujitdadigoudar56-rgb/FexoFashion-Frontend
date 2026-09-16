@@ -123,7 +123,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   size?: string;
-  sort?: 'newest' | 'price_low' | 'price_high' | 'name';
+  sort?: 'newest' | 'relevance' | 'popularity' | 'rating' | 'price_low' | 'price_high' | 'discount_high' | 'name';
   page?: number;
   pageSize?: number;
 }

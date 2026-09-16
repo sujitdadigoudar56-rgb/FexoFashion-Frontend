@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { inStock, sizesList } from '@/lib/product';
 import type { Product } from '@/lib/types';
-import FexoMirror from '@/components/mirror/Fexomirror';
+import FexoMirror from '@/components/mirror/FexoMirror';
 import QtyBox from './QtyBox';
 
 export default function ProductActions({ product }: { product: Product }) {

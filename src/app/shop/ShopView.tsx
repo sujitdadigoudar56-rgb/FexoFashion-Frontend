@@ -102,7 +102,7 @@ export default async function ShopView({
       {/* Breadcrumbs */}
       <div
         className="fx-container"
-        style={{ paddingTop: 130 }}
+        style={{ paddingTop: 24 }}
       >
         <Breadcrumbs
           items={[
