@@ -1,109 +1,104 @@
 'use client';
 
-// Ports templates/accounts/addresses.html.
-
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import AccountSidebar from '@/components/account/AccountSidebar';
-import RequireAuth from '@/components/account/RequireAuth';
-import PageHeader from '@/components/ui/PageHeader';
+import AccountLayout from '@/components/account/AccountLayout';
+import AddressForm, { AddressLines } from '@/components/account/AddressForm';
 import { useAuth } from '@/context/AuthContext';
 import { useMessages } from '@/context/MessageContext';
 
-const emptyForm = {
-  full_name: '',
-  phone: '',
-  line1: '',
-  line2: '',
-  city: '',
-  state: '',
-  postal_code: '',
-  country: 'India',
-  is_default: false,
-  address_type: 'shipping' as const,
-};
-
-function AddressesContent() {
-  const { addresses, addAddress, removeAddress } = useAuth();
+function Addresses() {
+  const { user, addresses, addAddress, updateAddress, removeAddress } = useAuth();
   const { pushMessage } = useMessages();
-  const [form, setForm] = useState(emptyForm);
+  const [editing, setEditing] = useState<number | 'new' | null>(addresses.length ? null : 'new');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const run = async (fn: () => Promise<unknown>, ok: string, fail: string) => {
     try {
-      await addAddress(form);
-      pushMessage('Address saved.', 'success');
-      setForm(emptyForm);
+      await fn();
+      pushMessage(ok, 'success');
+      return true;
     } catch {
-      pushMessage('Could not save that address — please try again.', 'error');
+      pushMessage(fail, 'error');
+      return false;
     }
   };
 
+  const editingAddress = typeof editing === 'number' ? addresses.find((a) => a.id === editing) : undefined;
+
   return (
     <>
-      <PageHeader eyebrow="Account" title="Addresses" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
-        <div className="fx-container" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 48 }}>
-          <AccountSidebar active="addresses" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
-            <div>
-              {addresses.length === 0 && <p className="fx-muted">No addresses saved yet.</p>}
-              {addresses.map((a) => (
-                <div key={a.id} style={{ border: '1px solid var(--fx-line-soft)', padding: 20, marginBottom: 16 }}>
-                  <strong>{a.full_name}</strong> {a.is_default && <span className="fx-muted">(Default)</span>}
-                  <p className="fx-muted" style={{ fontSize: 13, margin: '8px 0' }}>
-                    {a.line1}
-                    {a.line2 ? `, ${a.line2}` : ''}
-                    <br />
-                    {a.city}, {a.state} {a.postal_code}
-                    <br />
-                    {a.phone}
-                  </p>
-                  <button
-                    type="button"
-                    style={{ background: 'none', border: 'none', color: 'var(--fx-muted)', fontSize: 12, textDecoration: 'underline' }}
-                    onClick={() => removeAddress(a.id).catch(() => pushMessage('Could not remove that address.', 'error'))}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-            <form onSubmit={handleSubmit}>
-              <label className="fx-form-label">Full Name</label>
-              <input type="text" className="fx-input" required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-              <label className="fx-form-label">Phone</label>
-              <input type="text" className="fx-input" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-              <label className="fx-form-label">Address Line 1</label>
-              <input type="text" className="fx-input" required value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} />
-              <label className="fx-form-label">Address Line 2</label>
-              <input type="text" className="fx-input" value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} />
-              <label className="fx-form-label">City</label>
-              <input type="text" className="fx-input" required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-              <label className="fx-form-label">State</label>
-              <input type="text" className="fx-input" required value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
-              <label className="fx-form-label">Postal Code</label>
-              <input type="text" className="fx-input" required value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} />
-              <label className="fx-muted" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 13 }}>
-                <input
-                  type="checkbox"
-                  checked={form.is_default}
-                  onChange={(e) => setForm({ ...form, is_default: e.target.checked })}
-                />
-                Set as default address
-              </label>
-              <button type="submit" className="fx-btn fx-btn-solid">Save Address</button>
-            </form>
-          </div>
+      <div className="fx-account-head">
+        <div>
+          <h1 className="fx-h-title">Saved Addresses</h1>
+          <p>Manage your delivery addresses.</p>
         </div>
+        {editing !== 'new' && (
+          <button type="button" className="fx-btn fx-btn-sm fx-btn-round" onClick={() => setEditing('new')}>
+            <Plus size={14} aria-hidden /> Add new address
+          </button>
+        )}
       </div>
+
+      {addresses.length > 0 && (
+        <div className="fx-address-grid" style={{ marginBottom: 32 }}>
+          {addresses.map((a) => (
+            <div key={a.id} className={`fx-address-card${a.is_default ? ' fx-on' : ''}`}>
+              <div className="fx-address-tags">
+                <span className="fx-pill">{a.address_type === 'billing' ? 'Billing' : 'Delivery'}</span>
+                {a.is_default && <span className="fx-pill fx-pill-success">Default</span>}
+              </div>
+              <AddressLines a={a} />
+              <div className="fx-address-actions">
+                <button type="button" onClick={() => setEditing(a.id)}>Edit</button>
+                <button
+                  type="button"
+                  className="muted"
+                  onClick={() => {
+                    if (window.confirm('Delete this address?')) run(() => removeAddress(a.id), 'Address deleted.', 'Could not delete that address.');
+                  }}
+                >
+                  Delete
+                </button>
+                {!a.is_default && (
+                  <button type="button" onClick={() => run(() => updateAddress(a.id, { is_default: true }), 'Default address updated.', 'Could not update the default address.')}>
+                    Set as default
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editing !== null && (
+        <section className="fx-panel fx-panel-pad">
+          <h2 className="fx-h-title" style={{ fontSize: 24, marginBottom: 4 }}>{editing === 'new' ? 'Add New Address' : 'Edit Address'}</h2>
+          <p className="fx-muted" style={{ fontSize: 13, marginBottom: 20 }}>Please fill in your delivery details accurately.</p>
+          <AddressForm
+            key={editing}
+            initial={editingAddress}
+            defaults={{ full_name: `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim(), phone: user?.phone ?? '', is_default: addresses.length === 0 }}
+            submitLabel={editing === 'new' ? 'Save address' : 'Update address'}
+            onCancel={addresses.length ? () => setEditing(null) : undefined}
+            onSubmit={async (input) => {
+              const ok = await run(
+                () => (editing === 'new' ? addAddress(input) : updateAddress(editing, input)),
+                editing === 'new' ? 'Address saved.' : 'Address updated.',
+                'Could not save that address — please check the details.'
+              );
+              if (ok) setEditing(null);
+            }}
+          />
+        </section>
+      )}
     </>
   );
 }
 
 export default function AddressesPage() {
   return (
-    <RequireAuth>
-      <AddressesContent />
-    </RequireAuth>
+    <AccountLayout active="addresses" crumbs={[{ label: 'Addresses' }]}>
+      <Addresses />
+    </AccountLayout>
   );
 }

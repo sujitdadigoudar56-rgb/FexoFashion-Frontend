@@ -9,7 +9,7 @@ export default function ShippingPage() {
   return (
     <>
       <PageHeader eyebrow="Support" title="Shipping Information" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 760 }}>
           <p className="fx-muted" style={{ lineHeight: 1.8, marginBottom: 20 }}>
             Orders are processed within 1–2 business days. Standard delivery across India takes 3–7

@@ -10,7 +10,7 @@ export default function ContactPage() {
   return (
     <>
       <PageHeader eyebrow="Get in Touch" title="Contact Us" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 600 }}>
           <ContactForm />
         </div>

@@ -13,7 +13,7 @@ export default async function JournalPage() {
   return (
     <>
       <PageHeader eyebrow="Editorial" title="The Journal" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container">
           <div className="fx-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
             {posts.length === 0 && (

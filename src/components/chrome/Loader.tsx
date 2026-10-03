@@ -12,7 +12,7 @@ export default function Loader() {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     const reveal = () => {
-      timer = setTimeout(() => setLoaded(true), 900);
+      timer = setTimeout(() => setLoaded(true), 300);
     };
     if (document.readyState === 'complete') {
       reveal();

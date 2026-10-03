@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <PageHeader eyebrow="Legal" title="Privacy Policy" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 760 }}>
           <p className="fx-muted" style={{ lineHeight: 1.8, marginBottom: 20 }}>
             FEXO respects your privacy. We collect only the information required to process orders,

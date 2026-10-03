@@ -9,7 +9,7 @@ export default function TermsPage() {
   return (
     <>
       <PageHeader eyebrow="Legal" title="Terms & Conditions" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 760 }}>
           <p className="fx-muted" style={{ lineHeight: 1.8, marginBottom: 20 }}>
             By accessing and using FEXO, you agree to these terms. All content, imagery, and designs on

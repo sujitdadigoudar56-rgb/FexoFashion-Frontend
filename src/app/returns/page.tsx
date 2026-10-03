@@ -9,7 +9,7 @@ export default function ReturnsPage() {
   return (
     <>
       <PageHeader eyebrow="Support" title="Returns & Exchanges" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 760 }}>
           <p className="fx-muted" style={{ lineHeight: 1.8, marginBottom: 20 }}>
             We accept returns within 14 days of delivery for unworn items with original tags attached.

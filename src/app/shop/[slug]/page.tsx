@@ -1,261 +1,120 @@
-// Ports templates/products/product_detail.html.
-
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import ProductActions from '@/components/product/ProductActions';
+import ProductCard from '@/components/product/ProductCard';
 import ProductGallery from '@/components/product/ProductGallery';
-import ProductGrid from '@/components/product/ProductGrid';
 import ProductReviews from '@/components/product/ProductReviews';
 import RecentlyViewed from '@/components/product/RecentlyViewed';
-import SizeChart from '@/components/product/SizeChart';
-import WishlistButton from '@/components/product/WishlistButton';
-import StarRating from '@/components/ui/StarRating';
-import {
-  getCompleteTheLook,
-  getProductBySlug,
-  getRelatedProducts,
-} from '@/lib/data';
-import { averageRating, isOnSale, reviewCount } from '@/lib/product';
+import Stars from '@/components/ui/Stars';
+import { getCompleteTheLook, getProductBySlug, getRelatedProducts } from '@/lib/data';
+import { rupees } from '@/lib/format';
+import { averageRating, discountPercent, isOnSale, reviewCount, sizesList } from '@/lib/product';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-
   return {
     title: product?.name ?? 'Product',
-    description: product
-      ? product.short_description || product.name
-      : undefined,
+    description: product ? product.short_description || product.name : undefined,
   };
 }
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-
   if (!product) notFound();
 
   const [related, completeTheLook] = await Promise.all([
-    getRelatedProducts(product),
-    getCompleteTheLook(product),
+    getRelatedProducts(product, 4).catch(() => []),
+    getCompleteTheLook(product, 4).catch(() => []),
   ]);
+  const suggestions = [...related, ...completeTheLook.filter((p) => !related.some((r) => r.id === p.id))].slice(0, 4);
 
   const onSale = isOnSale(product);
+  const rating = averageRating(product);
+  const reviews = reviewCount(product);
+  const eyebrow = product.is_new_arrival ? 'New arrival' : product.is_best_seller ? 'Best seller' : product.category.name;
 
-  const shortDescription =
-    product.short_description ||
-    product.description.split(' ').slice(0, 40).join(' ');
-
-  const detailHeadingStyle: React.CSSProperties = {
-    cursor: 'pointer',
-    fontSize: 13,
-    letterSpacing: '.06em',
-    textTransform: 'uppercase',
-  };
+  const specs: [string, string][] = [
+    ['Category', product.category.name],
+    ['Colour', product.color || '—'],
+    ['Sizes', sizesList(product).join(', ') || '—'],
+    ['SKU', product.sku],
+    ['Fabric & care', product.fabric_details || '—'],
+    ['GST', `${product.gst_percent}% (included at checkout)`],
+  ];
 
   return (
-    <div style={{ paddingTop: 110 }}>
+    <div className="fx-container">
+      <nav className="fx-breadcrumbs" aria-label="Breadcrumb" style={{ paddingTop: 22 }}>
+        <Link href="/">Home</Link>
+        <span>/</span>
+        <Link href="/shop">Shop</Link>
+        <span>/</span>
+        <Link href={`/shop?category=${product.category.slug}`}>{product.category.name}</Link>
+        <span>/</span>
+        <span aria-current="page">{product.name}</span>
+      </nav>
 
-      {/* Breadcrumbs */}
-      <div
-        className="fx-container"
-        style={{ marginBottom: 24 }}
-      >
-        <Breadcrumbs
-          items={[
-            { label: 'Shop', href: '/shop' },
-            {
-              label: product.category.name,
-              href: `/shop/category/${product.category.slug}`,
-            },
-            { label: product.name },
-          ]}
-        />
-      </div>
-
-      {/* Product Details */}
-      <div
-        className="fx-container"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 60,
-        }}
-      >
+      <div className="fx-pdp">
         <ProductGallery product={product} />
-
-        <div>
-          <span className="fx-eyebrow">
-            {product.category.name}
-          </span>
-
-          <h1
-            className="fx-serif"
-            style={{
-              fontSize: 36,
-              margin: '12px 0 8px',
-            }}
-          >
-            {product.name}
-          </h1>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 18,
-            }}
-          >
-            <StarRating />
-
-            <span
-              className="fx-muted"
-              style={{ fontSize: 13 }}
-            >
-              {averageRating(product)} ({reviewCount(product)} reviews)
-            </span>
+        <div className="fx-pdp-info">
+          <span className="fx-eyebrow">{eyebrow}</span>
+          <h1>{product.name}</h1>
+          <div className="fx-pdp-rating">
+            {reviews > 0 ? (
+              <>
+                <Stars value={rating} size={14} />
+                <span>{rating.toFixed(1)}</span>
+                <span className="fx-muted">|</span>
+                <a href="#reviews">{reviews} review{reviews === 1 ? '' : 's'}</a>
+              </>
+            ) : (
+              <a href="#reviews" className="fx-muted">No reviews yet — write the first</a>
+            )}
           </div>
-
-          <div
-            style={{
-              fontSize: 24,
-              marginBottom: 22,
-            }}
-          >
+          <div className="fx-pdp-price">
+            <strong>{rupees(product.price)}</strong>
             {onSale && (
-              <del
-                className="fx-muted"
-                style={{ marginRight: 12 }}
-              >
-                &#8377;{product.compare_at_price}
-              </del>
+              <>
+                <span className="fx-strike">MRP {rupees(product.compare_at_price)}</span>
+                <span className="off">({discountPercent(product)}% OFF)</span>
+              </>
             )}
-
-            &#8377;{product.price}
           </div>
-
-          <p
-            className="fx-muted"
-            style={{
-              lineHeight: 1.7,
-              marginBottom: 28,
-            }}
-          >
-            {shortDescription}
-          </p>
-
+          <p className="fx-pdp-tax">Price excludes GST, which is added at checkout.</p>
+          {product.short_description && <p className="fx-muted" style={{ lineHeight: 1.7, fontSize: 14, marginBottom: 6 }}>{product.short_description}</p>}
           <ProductActions product={product} />
-
-          <WishlistButton product={product} />
-
-          <div
-            style={{
-              marginTop: 40,
-              borderTop: '1px solid var(--fx-line-soft)',
-              paddingTop: 24,
-            }}
-          >
-            <details style={{ marginBottom: 16 }}>
-              <summary style={detailHeadingStyle}>
-                Description
-              </summary>
-
-              <p
-                className="fx-muted"
-                style={{
-                  marginTop: 12,
-                  lineHeight: 1.7,
-                }}
-              >
-                {product.description}
-              </p>
-            </details>
-
-            {product.fabric_details && (
-              <details style={{ marginBottom: 16 }}>
-                <summary style={detailHeadingStyle}>
-                  Fabric &amp; Care
-                </summary>
-
-                <p
-                  className="fx-muted"
-                  style={{
-                    marginTop: 12,
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {product.fabric_details}
-                </p>
-              </details>
-            )}
-
-            <details>
-              <summary style={detailHeadingStyle}>
-                Size Guide
-              </summary>
-
-              <SizeChart note={product.size_guide} />
-            </details>
-          </div>
         </div>
       </div>
 
-      {/* Related Products */}
-      {related.length > 0 && (
-        <section className="fx-section">
-          <div className="fx-container">
-            <div className="fx-section-head">
-              <div>
-                <span className="fx-eyebrow">
-                  You May Also Like
-                </span>
-
-                <h2>Related Pieces</h2>
-              </div>
+      <section className="fx-spec-section">
+        <h2>Product Details &amp; Specifications</h2>
+        <p className="fx-muted" style={{ lineHeight: 1.8, fontSize: 14, maxWidth: 820, marginBottom: 20 }}>{product.description}</p>
+        <div className="fx-spec-grid">
+          {specs.map(([k, v]) => (
+            <div key={k}>
+              <span>{k}</span>
+              <span>{v}</span>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <ProductGrid products={related} />
+      {suggestions.length > 0 && (
+        <section className="fx-spec-section">
+          <h2>You May Also Like</h2>
+          <div className="fx-grid">
+            {suggestions.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         </section>
       )}
-
-      {/* Complete The Look */}
-      {completeTheLook.length > 0 && (
-        <section
-          className="fx-section"
-          style={{
-            background: 'var(--fx-secondary)',
-          }}
-        >
-          <div className="fx-container">
-            <div className="fx-section-head">
-              <div>
-                <span className="fx-eyebrow">
-                  Styled Together
-                </span>
-
-                <h2>Complete the Look</h2>
-              </div>
-            </div>
-
-            <ProductGrid products={completeTheLook} />
-          </div>
-        </section>
-      )}
-
-      <RecentlyViewed product={product} />
 
       <ProductReviews product={product} />
+      <RecentlyViewed product={product} />
     </div>
   );
 }

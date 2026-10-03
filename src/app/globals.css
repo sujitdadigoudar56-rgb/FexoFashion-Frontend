@@ -60,27 +60,30 @@ h1,h2,h3,h4{font-family:var(--fx-serif);font-weight:500;letter-spacing:0.01em;ma
   100%{opacity:1;transform:scale(1);}
 }
 
+/* Header: always fixed at the top (never hides on scroll). Transparent over
+   the homepage hero until the page scrolls; solid white everywhere else. */
+:root{--fx-nav-h:76px;}
 #fx-nav{
-  position:fixed;top:0;left:0;right:0;z-index:500;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:26px 48px;
+  position:fixed;top:0;left:0;right:0;z-index:500;height:var(--fx-nav-h);
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:0 48px;
   background:rgba(255,255,255,0.0);
   color:#fff;
-  backdrop-filter:blur(0px);
-  transition:transform .5s var(--fx-ease), background .4s ease, backdrop-filter .4s ease, padding .4s ease, color .4s ease;
+  transition:background .3s ease, color .3s ease, border-color .3s ease;
   border-bottom:1px solid transparent;
 }
 #fx-nav.fx-scrolled{
-  background:rgba(255,255,255,0.86);
+  background:#fff;
   color:var(--fx-accent);
-  backdrop-filter:blur(14px);
   border-bottom:1px solid var(--fx-line-soft);
-  padding:16px 48px;
 }
-#fx-nav.fx-hide{transform:translateY(-110%);}
-@media(max-width:768px){#fx-nav{padding:18px 20px;}}
+.fx-nav-spacer{height:var(--fx-nav-h);}
+@media(max-width:768px){#fx-nav{padding:0 20px;}}
 
-.fx-logo{font-family:var(--fx-serif);font-size:24px;letter-spacing:0.14em;color:inherit;}
+/* Logo mark with the FEXO wordmark underneath, top-left of the header. */
+.fx-logo{display:flex;flex-direction:column;align-items:center;gap:2px;color:inherit;line-height:1;}
+.fx-logo-mark{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#000;}
+.fx-logo-word{font-family:var(--fx-serif);font-size:14px;letter-spacing:0.32em;padding-left:0.32em;font-weight:600;}
 .fx-nav-links{display:flex;gap:36px;align-items:center;}
 .fx-nav-links a{
   position:relative;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;
@@ -200,12 +203,12 @@ h1,h2,h3,h4{font-family:var(--fx-serif);font-weight:500;letter-spacing:0.01em;ma
 }
 .fx-input:focus, .fx-select:focus, .fx-textarea:focus{outline:none;border-color:var(--fx-accent);}
 .fx-form-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--fx-muted);display:block;margin-bottom:8px;}
-.fx-auth-wrap{max-width:440px;margin:150px auto 100px;padding:0 20px;}
+.fx-auth-wrap{max-width:440px;margin:56px auto 80px;padding:0 20px;}
 .fx-auth-wrap h1{font-size:36px;margin-bottom:8px;}
 .fx-auth-wrap p.fx-sub{color:var(--fx-muted);margin-bottom:36px;font-size:14px;}
 .fx-auth-switch{margin-top:24px;font-size:13px;color:var(--fx-muted);text-align:center;}
 
-.fx-messages{position:fixed;top:100px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:10px;}
+.fx-messages{position:fixed;top:calc(var(--fx-nav-h) + 14px);left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:10px;}
 .fx-message{
   background:#fff;border:1px solid var(--fx-line);padding:14px 20px;font-size:13px;min-width:260px;color:var(--fx-accent);
   box-shadow:0 8px 24px rgba(17,17,17,0.08);
@@ -213,7 +216,7 @@ h1,h2,h3,h4{font-family:var(--fx-serif);font-weight:500;letter-spacing:0.01em;ma
 }
 .fx-message.success{border-color:#4caf50;}
 .fx-message.error{border-color:#e57373;}
-@keyframes fx-slide-in{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fx-slide-in{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
 
 .fx-muted{color:var(--fx-muted);}
 .fx-center{text-align:center;}
@@ -221,7 +224,7 @@ h1,h2,h3,h4{font-family:var(--fx-serif);font-weight:500;letter-spacing:0.01em;ma
 .fx-reveal{opacity:0;transform:translateY(40px);transition:opacity .9s var(--fx-ease), transform .9s var(--fx-ease);}
 .fx-reveal.fx-in{opacity:1;transform:translateY(0);}
 
-.fx-page-header{padding:120px 0 40px;border-bottom:1px solid var(--fx-line-soft);}
+.fx-page-header{padding:28px 0 28px;border-bottom:1px solid var(--fx-line-soft);}
 .fx-page-header .fx-eyebrow{margin-bottom:14px;display:block;}
 .fx-page-header h1{font-size:clamp(32px,5vw,54px);}
 
@@ -273,7 +276,7 @@ h1,h2,h3,h4{font-family:var(--fx-serif);font-weight:500;letter-spacing:0.01em;ma
 .fx-search-result:hover{color:var(--fx-gold);}
 
 .fx-search-dropdown{
-  position:fixed;top:78px;right:48px;z-index:1500;background:#fff;
+  position:fixed;top:calc(var(--fx-nav-h) + 4px);right:48px;z-index:1500;background:#fff;
   width:380px;max-width:calc(100vw - 40px);
   padding:24px;border:1px solid var(--fx-line-soft);box-shadow:0 12px 30px rgba(17,17,17,0.12);
   transform:translateY(-12px);opacity:0;visibility:hidden;

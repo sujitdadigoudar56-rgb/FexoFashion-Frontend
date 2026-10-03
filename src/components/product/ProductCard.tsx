@@ -1,63 +1,102 @@
 'use client';
 
-// Ports templates/products/includes/product_card.html — reused across
-// home, shop, wishlist, related/complete-the-look/recently-viewed
-// sections exactly like the original `{% include %}`.
+// Product tile used on the shop grid, home rails, related products and
+// wishlist: image (hover swaps to the second photo), NEW / SALE tag,
+// wishlist heart, Quick Add, rating, name, price with MRP + % off, colour.
 
+import { Heart } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import Stars from '@/components/ui/Stars';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
-import { discountPercent, isOnSale, primaryImage, productUrl, secondaryImage } from '@/lib/product';
+import { colorHex, rupees } from '@/lib/format';
+import { averageRating, discountPercent, isOnSale, primaryImage, productUrl, reviewCount, secondaryImage } from '@/lib/product';
 import type { Product } from '@/lib/types';
+
+export function fallbackImage(name: string) {
+  return `https://placehold.co/600x750/0e0e0e/8a8a8a?text=${encodeURIComponent(name)}`;
+}
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
+  const [adding, setAdding] = useState(false);
   const primary = primaryImage(product);
   const secondary = secondaryImage(product);
   const wishlisted = isWishlisted(product.id);
   const onSale = isOnSale(product);
-  const fallbackImage = `https://placehold.co/600x800/0e0e0e/8a8a8a?text=${encodeURIComponent(product.name)}`;
+  const rating = averageRating(product);
+  const reviews = reviewCount(product);
+  // Quick Add puts the first in-stock size in the bag.
+  const variant = product.variants.find((v) => v.stock_quantity > 0);
+  const soldOut = product.variants.length > 0 && !variant;
+
+  const quickAdd = async () => {
+    setAdding(true);
+    await addItem(product.slug, product.name, 1, variant?.id ?? null);
+    setAdding(false);
+  };
 
   return (
-    <div className="fx-card fx-reveal">
-      <Link href={productUrl(product)}>
-        <div className="fx-card-media">
-          {product.is_new_arrival && <span className="fx-badge-tag">New</span>}
-          {onSale && <span className="fx-badge-tag">-{discountPercent(product)}%</span>}
-          <img className="fx-img-primary" src={primary?.image ?? fallbackImage} alt={product.name} loading="lazy" />
-          {secondary && <img className="fx-img-hover" src={secondary.image} alt={product.name} loading="lazy" />}
-        </div>
-      </Link>
-      <div className="fx-card-actions">
+    <article className="fx-pcard">
+      <div className="fx-pcard-media">
+        <Link href={productUrl(product)} aria-label={product.name}>
+          {onSale ? (
+            <span className="fx-pcard-tag sale">Sale</span>
+          ) : product.is_new_arrival ? (
+            <span className="fx-pcard-tag">New</span>
+          ) : null}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="fx-img-primary" src={primary?.image ?? fallbackImage(product.name)} alt={product.name} loading="lazy" />
+          {secondary && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="fx-img-hover" src={secondary.image} alt="" loading="lazy" />
+          )}
+        </Link>
         <button
           type="button"
-          className="fx-icon-btn"
-          aria-label="Wishlist"
+          className={`fx-pcard-heart${wishlisted ? ' fx-on' : ''}`}
+          aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          aria-pressed={wishlisted}
           onClick={() => toggleWishlist(product.slug, product.name)}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill={wishlisted ? 'currentColor' : 'none'}
-            stroke="currentColor"
-            strokeWidth="1.6"
-          >
-            <path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.8.6 5 2.2C11.8 4.6 13.6 3.7 15.6 4c3.6.5 5.2 4 3.6 7.7C16.7 16.4 12 21 12 21z" />
-          </svg>
+          <Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} aria-hidden />
+        </button>
+        <button type="button" className="fx-pcard-quick" onClick={quickAdd} disabled={soldOut || adding}>
+          {soldOut ? 'Sold out' : adding ? 'Adding…' : `Quick add${variant ? ` · ${variant.size}` : ''} +`}
         </button>
       </div>
-      <Link href={productUrl(product)} className="fx-card-info">
-        <h3>{product.name}</h3>
-        <span className="fx-price">
-          {onSale && <del>&#8377;{product.compare_at_price}</del>}
-          &#8377;{product.price}
-        </span>
-      </Link>
-      <button type="button" className="fx-quick-add" onClick={() => addItem(product.slug, product.name, 1)}>
-        Quick Add
-      </button>
-    </div>
+      <div className="fx-pcard-body">
+        <div className="fx-pcard-rating">
+          {reviews > 0 ? (
+            <>
+              <Stars value={rating} size={12} />
+              <strong>{rating.toFixed(1)}</strong>
+              <span>({reviews})</span>
+            </>
+          ) : (
+            <span>No reviews yet</span>
+          )}
+        </div>
+        <Link href={productUrl(product)} className="fx-pcard-name">
+          {product.name}
+        </Link>
+        <div className="fx-pcard-price">
+          <span>{rupees(product.price)}</span>
+          {onSale && (
+            <>
+              <span className="fx-strike">{rupees(product.compare_at_price)}</span>
+              <span className="fx-money-off">{discountPercent(product)}% OFF</span>
+            </>
+          )}
+        </div>
+        {product.color && (
+          <div className="fx-pcard-colors" title={product.color}>
+            <span className="fx-swatch" style={{ background: colorHex(product.color) }} aria-label={`Colour: ${product.color}`} />
+          </div>
+        )}
+      </div>
+    </article>
   );
 }

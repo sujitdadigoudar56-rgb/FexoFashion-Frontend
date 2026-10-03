@@ -114,9 +114,25 @@ export type OrderStatus =
 export interface OrderItem {
   product_slug: string;
   product_name: string;
+  product_image: string | null;
+  color: string;
   unit_price: number;
   quantity: number;
   size: string;
+  line_total: number;
+}
+
+export type PaymentMethod = 'razorpay' | 'cod';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+
+export interface RazorpayCheckout {
+  key_id: string;
+  razorpay_order_id: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  prefill: { name: string; email: string; contact: string };
 }
 
 export interface Order {
@@ -129,11 +145,18 @@ export interface Order {
   discount_amount: number;
   grand_total: number;
   coupon_code: string | null;
-  payment_method: 'cod';
+  payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
+  /** Online order not paid yet (customer can pay or cancel). */
+  awaiting_payment: boolean;
+  razorpay_payment_id: string;
+  paid_at: string | null;
   status: OrderStatus;
   notes: string;
   created_at: string;
   items: OrderItem[];
+  /** Present on checkout/pay responses for online payment. */
+  razorpay?: RazorpayCheckout;
 }
 
 export interface BlogPost {
@@ -180,6 +203,10 @@ export interface SiteSettings {
   tagline: string;
   contact_email: string;
   contact_phone: string;
+  address?: string;
+  instagram_url?: string;
+  facebook_url?: string;
+  twitter_url?: string;
 }
 
 export interface User {
@@ -189,6 +216,9 @@ export interface User {
   last_name: string;
   email: string;
   phone: string;
+  date_of_birth: string | null;
+  avatar: string | null;
+  date_joined: string;
 }
 
 // ---- cart (GET /api/cart/, mirrors cart/serializers.py) ----
@@ -198,6 +228,8 @@ export interface CartLineProduct {
   name: string;
   slug: string;
   price: number;
+  compare_at_price: number | null;
+  color: string;
   primary_image: string | null;
 }
 
@@ -211,6 +243,15 @@ export interface CartLine {
   gst_amount: number;
 }
 
+export interface CartTotals {
+  subtotal: number;
+  gst_total: number;
+  shipping_cost: number;
+  discount_amount: number;
+  grand_total: number;
+  item_count: number;
+}
+
 export interface CartState {
   id: number;
   items: CartLine[];
@@ -220,6 +261,16 @@ export interface CartState {
   discount_amount: number;
   grand_total: number;
   coupon_code: string | null;
+  /** Totals for the items selected on the bag page (GET /api/cart/?items=). */
+  selection?: CartTotals & { item_ids: number[] };
+}
+
+export interface ProductFacets {
+  categories: { name: string; slug: string; count: number }[];
+  colors: string[];
+  sizes: string[];
+  price_min: number;
+  price_max: number;
 }
 
 // ---- unused now that Cart/Wishlist are server-backed (kept only so

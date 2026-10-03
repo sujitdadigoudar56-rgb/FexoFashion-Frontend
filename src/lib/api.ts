@@ -43,15 +43,20 @@ export function clearToken(): void {
 
 interface ApiFetchOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  /** JSON-serialisable body, or FormData for file uploads. */
   body?: unknown;
   /** Skip attaching the Authorization header even if a token exists. */
   skipAuth?: boolean;
+  /** Cache a public server-side GET for this many seconds. Omit for live
+   *  data (cart, orders, account) which is always fetched fresh. */
+  revalidate?: number;
 }
 
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
-  const { method = 'GET', body, skipAuth = false } = options;
+  const { method = 'GET', body, skipAuth = false, revalidate } = options;
   const headers: Record<string, string> = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
   if (!skipAuth) {
     const token = getToken();
     if (token) headers.Authorization = `Token ${token}`;
@@ -60,11 +65,11 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   const res = await fetch(`${API_URL}${path}`, {
     method,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    // Always fetch fresh — content is admin-editable and cart/orders/
-    // wishlist are live user state, so stale caching would just be
-    // confusing during local dev.
-    cache: 'no-store',
+    body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+    // Public catalogue/content reads are cached briefly on the server so
+    // page navigations don't wait on the API every time; everything else
+    // (user state, mutations) is always fresh.
+    ...(revalidate !== undefined ? { next: { revalidate } } : { cache: 'no-store' as const }),
   });
 
   const text = await res.text();

@@ -1,78 +1,143 @@
 'use client';
 
+import { Heart, LayoutDashboard, LogOut, MapPin, Package, Search, ShoppingBag, User, UserRound } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import MobileMenu from './MobileMenu';
 import SearchOverlay from './SearchOverlay';
 
+const LINKS = [
+  { href: '/shop', label: 'Shop' },
+  { href: '/shop?sort=newest', label: 'New Arrivals' },
+  { href: '/about', label: 'About' },
+  { href: '/journal', label: 'Journal' },
+  { href: '/contact', label: 'Contact' },
+];
+
+function AccountMenu() {
+  const { user, isAuthenticated, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // Close the (tap-opened) menu whenever the route changes.
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
+
+  return (
+    <div className="fx-account-menu" onMouseLeave={() => setOpen(false)}>
+      <button
+        type="button"
+        className="fx-account-trigger"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Account"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <UserRound size={19} strokeWidth={1.6} aria-hidden />
+        {isAuthenticated && <span className="fx-account-name">{user?.first_name || user?.username}</span>}
+      </button>
+      <div className={`fx-account-pop${open ? ' fx-open' : ''}`} role="menu">
+        <div className="fx-account-pop-inner">
+          {isAuthenticated ? (
+            <>
+              <div className="fx-account-pop-head">
+                <strong>Hello, {user?.first_name || user?.username}</strong>
+                <span>{user?.email}</span>
+              </div>
+              <Link href="/accounts/dashboard" role="menuitem"><LayoutDashboard size={16} aria-hidden /> Dashboard</Link>
+              <Link href="/accounts/orders" role="menuitem"><Package size={16} aria-hidden /> My Orders</Link>
+              <Link href="/wishlist" role="menuitem"><Heart size={16} aria-hidden /> Wishlist</Link>
+              <Link href="/accounts/profile" role="menuitem"><User size={16} aria-hidden /> Profile</Link>
+              <Link href="/accounts/addresses" role="menuitem"><MapPin size={16} aria-hidden /> Addresses</Link>
+              <button
+                type="button"
+                role="menuitem"
+                className="fx-menu-item"
+                onClick={() => {
+                  logout();
+                  router.push('/');
+                }}
+              >
+                <LogOut size={16} aria-hidden /> Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="fx-account-pop-head">
+                <strong>Welcome to FEXO</strong>
+                <span>Sign in to track orders and save favourites.</span>
+              </div>
+              <div className="fx-menu-cta">
+                <Link href="/accounts/login" className="solid" role="menuitem">Login</Link>
+                <Link href="/accounts/register" role="menuitem">Register</Link>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const lastY = useRef(0);
   const pathname = usePathname();
   const isHome = pathname === '/';
-  const { isAuthenticated } = useAuth();
   const { itemCount } = useCart();
   const { items: wishlistItems } = useWishlist();
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
     setMobileOpen(false);
     setSearchOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 60);
-      setHidden(y > lastY.current && y > 200);
-      lastY.current = y;
-    };
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
     <>
-      <nav id="fx-nav" className={[(scrolled || !isHome) && 'fx-scrolled', hidden && 'fx-hide'].filter(Boolean).join(' ')}>
-        <Link href="/" className="fx-logo">FEXO</Link>
+      <nav id="fx-nav" className={scrolled || !isHome ? 'fx-scrolled' : ''}>
+        <Link href="/" className="fx-logo" aria-label="FEXO home">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/fexo-logo.jpg" alt="" className="fx-logo-mark" width={38} height={38} />
+          <span className="fx-logo-word">FEXO</span>
+        </Link>
         <ul className="fx-nav-links">
-          <li><Link href="/shop">Shop</Link></li>
-          <li><Link href="/shop">Collections</Link></li>
-          <li><Link href="/about">About</Link></li>
-          <li><Link href="/journal">Journal</Link></li>
-          <li><Link href="/contact">Contact</Link></li>
+          {LINKS.map((l) => (
+            <li key={l.label}>
+              <Link href={l.href} className={pathname === l.href.split('?')[0] && !l.href.includes('?') ? 'fx-active-link' : ''}>
+                {l.label}
+              </Link>
+            </li>
+          ))}
         </ul>
         <div className="fx-nav-icons">
-          <button id="fx-search-trigger" aria-label="Search" title="Search" onClick={() => setSearchOpen(true)}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <circle cx="11" cy="11" r="7" />
-              <path d="M21 21l-4.3-4.3" />
-            </svg>
+          <button aria-label="Search" title="Search" onClick={() => setSearchOpen(true)}>
+            <Search size={19} strokeWidth={1.6} aria-hidden />
           </button>
-          <Link href={isAuthenticated ? '/accounts/dashboard' : '/accounts/login'} aria-label="Account" title="Account">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" />
-            </svg>
-          </Link>
+          <AccountMenu />
           <Link href="/wishlist" aria-label="Wishlist" title="Wishlist">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.8.6 5 2.2C11.8 4.6 13.6 3.7 15.6 4c3.6.5 5.2 4 3.6 7.7C16.7 16.4 12 21 12 21z" />
-            </svg>
+            <Heart size={19} strokeWidth={1.6} aria-hidden />
             {wishlistItems.length > 0 && <span className="fx-badge">{wishlistItems.length}</span>}
           </Link>
-          <Link href="/cart" aria-label="Bag" title="Bag">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <path d="M6 8h12l-1 12H7L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg>
+          <Link href="/cart" aria-label={`Bag, ${itemCount} item${itemCount === 1 ? '' : 's'}`} title="Bag">
+            <ShoppingBag size={19} strokeWidth={1.6} aria-hidden />
             {itemCount > 0 && <span className="fx-badge">{itemCount}</span>}
           </Link>
           <button className="fx-mobile-toggle" aria-label="Menu" title="Menu" onClick={() => setMobileOpen((v) => !v)}>
@@ -82,6 +147,9 @@ export default function Nav() {
           </button>
         </div>
       </nav>
+      {/* Pushes content below the fixed header everywhere except the
+          full-bleed homepage hero. */}
+      {!isHome && <div className="fx-nav-spacer" aria-hidden />}
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

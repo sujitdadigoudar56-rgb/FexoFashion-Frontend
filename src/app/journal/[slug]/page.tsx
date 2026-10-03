@@ -20,7 +20,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
   if (!post) notFound();
 
   return (
-    <div style={{ paddingTop: 150 }}>
+    <div style={{ paddingTop: 32 }}>
       <div className="fx-container" style={{ maxWidth: 760 }}>
         <span className="fx-eyebrow">
           {post.author_name} &middot;{' '}

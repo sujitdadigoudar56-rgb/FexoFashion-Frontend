@@ -1,80 +1,68 @@
 'use client';
 
-// Ports templates/accounts/dashboard.html.
-
 import Link from 'next/link';
-import AccountSidebar from '@/components/account/AccountSidebar';
-import RequireAuth from '@/components/account/RequireAuth';
-import PageHeader from '@/components/ui/PageHeader';
+import AccountLayout from '@/components/account/AccountLayout';
+import OrderCard from '@/components/account/OrderCard';
 import { useAuth } from '@/context/AuthContext';
 import { useWishlist } from '@/context/WishlistContext';
 
-function statusLabel(status: string) {
-  return status.charAt(0).toUpperCase() + status.slice(1);
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-function DashboardContent() {
+function Dashboard() {
   const { user, orders, addresses } = useAuth();
   const { items: wishlistItems } = useWishlist();
+  const thisYear = new Date().getFullYear();
+  const deliveredThisYear = orders.filter((o) => o.status === 'delivered' && new Date(o.created_at).getFullYear() === thisYear).length;
+  const defaultAddress = addresses.find((a) => a.is_default);
 
   return (
     <>
-      <PageHeader eyebrow="Account" title={`Welcome, ${user?.first_name || user?.username}`} />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
-        <div className="fx-container" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 48 }}>
-          <AccountSidebar active="dashboard" />
-          <div>
-            <div className="fx-cat-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: 50 }}>
-              <div style={{ border: '1px solid var(--fx-line-soft)', padding: 28 }}>
-                <div className="fx-serif" style={{ fontSize: 34 }}>{orders.length}</div>
-                <div className="fx-muted" style={{ fontSize: 13, marginTop: 6 }}>Orders</div>
-              </div>
-              <div style={{ border: '1px solid var(--fx-line-soft)', padding: 28 }}>
-                <div className="fx-serif" style={{ fontSize: 34 }}>{wishlistItems.length}</div>
-                <div className="fx-muted" style={{ fontSize: 13, marginTop: 6 }}>Wishlist Items</div>
-              </div>
-              <div style={{ border: '1px solid var(--fx-line-soft)', padding: 28 }}>
-                <div className="fx-serif" style={{ fontSize: 34 }}>{addresses.length}</div>
-                <div className="fx-muted" style={{ fontSize: 13, marginTop: 6 }}>Saved Addresses</div>
-              </div>
-            </div>
-
-            <h4 style={{ fontSize: 12, letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 20 }}>
-              Recent Orders
-            </h4>
-            <table className="fx-table">
-              <thead>
-                <tr><th>Order</th><th>Date</th><th>Status</th><th>Total</th></tr>
-              </thead>
-              <tbody>
-                {orders.length === 0 && (
-                  <tr><td colSpan={4} className="fx-muted">No orders yet.</td></tr>
-                )}
-                {orders.slice(0, 5).map((order) => (
-                  <tr key={order.order_number}>
-                    <td><Link href={`/orders/${order.order_number}`}>{order.order_number}</Link></td>
-                    <td>{formatDate(order.created_at)}</td>
-                    <td>{statusLabel(order.status)}</td>
-                    <td>&#8377;{order.grand_total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <div className="fx-account-head">
+        <div>
+          <h1 className="fx-h-title">Welcome back, {user?.first_name || user?.username}</h1>
+          <p>From your dashboard you can view recent activity and manage your account.</p>
         </div>
       </div>
+
+      <div className="fx-stat-grid">
+        <Link href="/accounts/orders" className="fx-stat">
+          <small>Total orders</small>
+          <strong>{orders.length}</strong>
+          <span>{deliveredThisYear} delivered this year</span>
+        </Link>
+        <Link href="/wishlist" className="fx-stat">
+          <small>Wishlist items</small>
+          <strong>{wishlistItems.length}</strong>
+          <span>Saved for later</span>
+        </Link>
+        <Link href="/accounts/addresses" className="fx-stat">
+          <small>Saved addresses</small>
+          <strong>{addresses.length}</strong>
+          <span>{defaultAddress ? `Default: ${defaultAddress.city}` : 'No default set'}</span>
+        </Link>
+      </div>
+
+      <div className="fx-account-head" style={{ marginBottom: 14 }}>
+        <h2 style={{ fontFamily: 'var(--fx-sans)', fontSize: 17, fontWeight: 600 }}>Recent orders</h2>
+        {orders.length > 0 && (
+          <Link href="/accounts/orders" className="fx-btn fx-btn-sm fx-btn-round">View all orders</Link>
+        )}
+      </div>
+      {orders.length === 0 ? (
+        <div className="fx-empty">
+          <h3>No orders yet</h3>
+          <p>When you place an order it will appear here.</p>
+          <Link href="/shop" className="fx-btn fx-btn-solid fx-btn-round">Start shopping</Link>
+        </div>
+      ) : (
+        orders.slice(0, 2).map((order) => <OrderCard key={order.order_number} order={order} maxLines={1} />)
+      )}
     </>
   );
 }
 
 export default function DashboardPage() {
   return (
-    <RequireAuth>
-      <DashboardContent />
-    </RequireAuth>
+    <AccountLayout active="dashboard">
+      <Dashboard />
+    </AccountLayout>
   );
 }

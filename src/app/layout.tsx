@@ -7,6 +7,7 @@ import ScrollFx from '@/components/chrome/ScrollFx';
 import { getSiteSettings } from '@/lib/data';
 import Providers from './providers';
 import './globals.css';
+import './storefront.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettings();
@@ -23,8 +24,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const siteSettings = await getSiteSettings();
 
   return (
-    <html lang="en">
-      <body>
+    // Browser extensions (password managers, Grammarly…) add attributes to
+    // <html>/<body> before React loads; ignore those, not real mismatches.
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>
           <ScrollFx />
           <Loader />

@@ -10,6 +10,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { readStorage, STORAGE_KEYS, writeStorage } from '@/lib/storage';
+import { rupees } from '@/lib/format';
 import type { Product } from '@/lib/types';
 
 const MAX = 8;
@@ -44,34 +45,26 @@ export default function RecentlyViewed({ product }: { product: Product }) {
   if (!others.length) return null;
 
   return (
-    <section className="fx-section">
-      <div className="fx-container">
-        <div className="fx-section-head">
-          <div>
-            <span className="fx-eyebrow">History</span>
-            <h2>Recently Viewed</h2>
-          </div>
-        </div>
-        <div className="fx-grid">
-          {others.map((p) => (
-            <div key={p.id} className="fx-card">
-              <Link href={`/shop/${p.slug}`}>
-                <div className="fx-card-media">
-                  <img
-                    className="fx-img-primary"
-                    src={p.image ?? `https://placehold.co/600x800/0e0e0e/8a8a8a?text=${encodeURIComponent(p.name)}`}
-                    alt={p.name}
-                    loading="lazy"
-                  />
-                </div>
-              </Link>
-              <Link href={`/shop/${p.slug}`} className="fx-card-info">
-                <h3>{p.name}</h3>
-                <span className="fx-price">&#8377;{p.price}</span>
-              </Link>
+    <section className="fx-spec-section">
+      <h2>Recently Viewed</h2>
+      <div className="fx-grid">
+        {others.map((p) => (
+          <article key={p.id} className="fx-pcard">
+            <Link href={`/shop/${p.slug}`} className="fx-pcard-media" aria-label={p.name}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="fx-img-primary"
+                src={p.image ?? `https://placehold.co/600x750/0e0e0e/8a8a8a?text=${encodeURIComponent(p.name)}`}
+                alt={p.name}
+                loading="lazy"
+              />
+            </Link>
+            <div className="fx-pcard-body">
+              <Link href={`/shop/${p.slug}`} className="fx-pcard-name">{p.name}</Link>
+              <div className="fx-pcard-price">{rupees(p.price)}</div>
             </div>
-          ))}
-        </div>
+          </article>
+        ))}
       </div>
     </section>
   );

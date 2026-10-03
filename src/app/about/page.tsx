@@ -9,7 +9,7 @@ export default function AboutPage() {
   return (
     <>
       <PageHeader eyebrow="Our Story" title="Live in Fashion" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 760 }}>
           <p className="fx-serif" style={{ fontSize: 26, lineHeight: 1.5, marginBottom: 28 }}>
             FEXO was founded on a single conviction: that luxury is not decoration, it is discipline.

@@ -12,7 +12,7 @@ export default async function FaqPage() {
   return (
     <>
       <PageHeader eyebrow="Help" title="Frequently Asked Questions" />
-      <div className="fx-section" style={{ paddingTop: 56 }}>
+      <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container" style={{ maxWidth: 760 }}>
           {faqs.length === 0 && (
             <p className="fx-muted">FAQs will appear here once added in the admin dashboard.</p>

@@ -2,8 +2,10 @@
 
 // Client-side replacement for Django's `messages` framework (used by
 // base.html's `.fx-messages` block). Any context/component can call
-// `pushMessage()` to show a toast; it auto-dismisses after 4.2s exactly
-// like the original `fexo.js` did for server-rendered messages.
+// `pushMessage()` to show a toast; it auto-dismisses after 4.2s.
+// Only one toast is shown at a time: a new message replaces the current
+// one, so repeated actions (e.g. adding the same item again) never stack
+// a column of identical notifications.
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
@@ -35,7 +37,7 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
   const pushMessage = useCallback(
     (text: string, tag: MessageTag = 'success') => {
       const id = nextId++;
-      setMessages((prev) => [...prev, { id, tag, text }]);
+      setMessages([{ id, tag, text }]);
       setTimeout(() => dismissMessage(id), 4200);
     },
     [dismissMessage]
