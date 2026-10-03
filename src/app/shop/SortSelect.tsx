@@ -7,8 +7,12 @@ import { useRouter } from 'next/navigation';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest' },
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'popularity', label: 'Popularity' },
+  { value: 'rating', label: 'Rating' },
   { value: 'price_low', label: 'Price: Low to High' },
   { value: 'price_high', label: 'Price: High to Low' },
+  { value: 'discount_high', label: 'Discount' },
   { value: 'name', label: 'Name' },
 ];
 
