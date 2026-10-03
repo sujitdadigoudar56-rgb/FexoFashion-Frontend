@@ -1,10 +1,9 @@
 import type { NextConfig } from "next";
 
-// The backend (Django) is a separate deploy at a different domain and owns
-// /admin/ entirely — its own session cookies, CSRF, and static assets are
-// all scoped to that domain. Reverse-proxying it through this app would
-// break those; a redirect just sends the browser there directly instead.
-const ADMIN_URL = "https://fexofashion.onrender.com/admin/";
+// The admin is a separate Next.js app (Fexo-admin) on its own domain, so
+// /admin on the storefront just redirects there. Set ADMIN_URL per
+// deployment; it defaults to the admin's local dev server.
+const ADMIN_URL = `${(process.env.ADMIN_URL ?? "http://localhost:3001").replace(/\/$/, "")}/`;
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1', 'localhost'],
