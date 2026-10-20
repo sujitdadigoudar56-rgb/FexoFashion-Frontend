@@ -65,7 +65,7 @@ export default async function ShopView({
         {result.items.length ? (
           <div className="fx-grid-3">
             {result.items.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} colors={state.colors} />
             ))}
           </div>
         ) : (

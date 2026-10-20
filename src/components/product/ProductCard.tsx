@@ -18,12 +18,16 @@ export function fallbackImage(name: string) {
   return `https://placehold.co/600x750/0e0e0e/8a8a8a?text=${encodeURIComponent(name)}`;
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product, colors }: { product: Product; colors?: string[] }) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [adding, setAdding] = useState(false);
-  const primary = primaryImage(product);
-  const secondary = secondaryImage(product);
+  // When the shop is filtered by colour, show that colour's photos and open the PDP on it.
+  const color = colors?.length ? product.colors.find((c) => colors.some((v) => v.toLowerCase() === c.toLowerCase())) : undefined;
+  const tinted = color ? product.images.filter((img) => img.color === color) : [];
+  const primary = tinted[0] ?? primaryImage(product);
+  const secondary = tinted.length ? tinted[1] : secondaryImage(product);
+  const href = color ? `${productUrl(product)}?color=${encodeURIComponent(color)}` : productUrl(product);
   const wishlisted = isWishlisted(product.id);
   const onSale = isOnSale(product);
   const rating = averageRating(product);
@@ -41,7 +45,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <article className="fx-pcard">
       <div className="fx-pcard-media">
-        <Link href={productUrl(product)} aria-label={product.name}>
+        <Link href={href} aria-label={product.name}>
           {onSale ? (
             <span className="fx-pcard-tag sale">Sale</span>
           ) : product.is_new_arrival ? (
@@ -79,7 +83,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <span>No reviews yet</span>
           )}
         </div>
-        <Link href={productUrl(product)} className="fx-pcard-name">
+        <Link href={href} className="fx-pcard-name">
           {product.name}
         </Link>
         <div className="fx-pcard-price">

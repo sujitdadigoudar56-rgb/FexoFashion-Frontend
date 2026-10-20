@@ -4,11 +4,12 @@
 // backed by localStorage instead of the Django session-scoped
 // RecentlyViewed model (that relied on session cookies, which the
 // token-authenticated frontend doesn't send). Stores a small snapshot per
-// product (not just an id) so no extra API call/lookup is needed to
-// render this section.
+// product, re-checked against the API on each view so deleted products
+// drop out and price/image changes show up.
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { ApiError, apiFetch } from '@/lib/api';
 import { readStorage, STORAGE_KEYS, writeStorage } from '@/lib/storage';
 import { rupees } from '@/lib/format';
 import type { Product } from '@/lib/types';
@@ -34,11 +35,25 @@ export default function RecentlyViewed({ product }: { product: Product }) {
   useEffect(() => {
     // Hydrate from localStorage post-mount (not available during SSR),
     // and record this product as viewed.
-    const existing = readStorage<ViewedSnapshot[]>(STORAGE_KEYS.recentlyViewed, []);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOthers(existing.filter((p) => p.id !== product.id).slice(0, 4));
-    const next = [snapshotOf(product), ...existing.filter((p) => p.id !== product.id)].slice(0, MAX);
-    writeStorage(STORAGE_KEYS.recentlyViewed, next);
+    const existing = readStorage<ViewedSnapshot[]>(STORAGE_KEYS.recentlyViewed, []).filter((p) => p.id !== product.id);
+    writeStorage(STORAGE_KEYS.recentlyViewed, [snapshotOf(product), ...existing].slice(0, MAX));
+    let cancelled = false;
+    // Only a 404 removes an entry; a network blip keeps the old snapshot.
+    Promise.all(
+      existing.map((p) =>
+        apiFetch<Product>(`/api/products/${encodeURIComponent(p.slug)}/`, { skipAuth: true }).then(snapshotOf, (err) =>
+          err instanceof ApiError && err.status === 404 ? null : p
+        )
+      )
+    ).then((live) => {
+      if (cancelled) return;
+      const alive = live.filter((p): p is ViewedSnapshot => p !== null);
+      setOthers(alive.slice(0, 4));
+      writeStorage(STORAGE_KEYS.recentlyViewed, [snapshotOf(product), ...alive].slice(0, MAX));
+    });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id]);
 
