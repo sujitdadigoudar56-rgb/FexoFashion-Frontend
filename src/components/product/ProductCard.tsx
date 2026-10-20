@@ -91,9 +91,11 @@ export default function ProductCard({ product }: { product: Product }) {
             </>
           )}
         </div>
-        {product.color && (
-          <div className="fx-pcard-colors" title={product.color}>
-            <span className="fx-swatch" style={{ background: colorHex(product.color) }} aria-label={`Colour: ${product.color}`} />
+        {product.colors.length > 0 && (
+          <div className="fx-pcard-colors" title={product.colors.join(', ')}>
+            {product.colors.map((c) => (
+              <span key={c} className="fx-swatch" style={{ background: colorHex(c) }} aria-label={`Colour: ${c}`} />
+            ))}
           </div>
         )}
       </div>

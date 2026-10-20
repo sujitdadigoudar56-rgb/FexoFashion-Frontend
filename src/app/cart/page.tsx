@@ -135,7 +135,7 @@ function Bag() {
                 <div>
                   <h3><Link href={`/shop/${line.product.slug}`}>{line.product.name}</Link></h3>
                   <div className="fx-bag-meta">
-                    {line.product.color && <span>Colour: <b>{line.product.color}</b></span>}
+                    {line.variant_color && <span>Colour: <b>{line.variant_color}</b></span>}
                     {line.variant_size && <span>Size: <b>{line.variant_size}</b></span>}
                   </div>
                   <div className="fx-bag-controls">

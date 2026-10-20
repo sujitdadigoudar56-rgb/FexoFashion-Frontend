@@ -56,7 +56,7 @@ function OrderSuccess() {
               <img src={item.product_image ?? orderThumb(item.product_name)} alt="" />
               <div>
                 <strong>{item.product_name}</strong>
-                <span>{[item.size && `Size: ${item.size}`, `Qty: ${item.quantity}`].filter(Boolean).join(' · ')}</span>
+                <span>{[item.size && `Size: ${item.size}`, item.color && `Colour: ${item.color}`, `Qty: ${item.quantity}`].filter(Boolean).join(' · ')}</span>
               </div>
               <b style={{ fontSize: 13 }}>{rupees(item.line_total ?? item.unit_price * item.quantity)}</b>
             </div>

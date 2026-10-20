@@ -7,9 +7,13 @@ import { primaryImage } from '@/lib/product';
 import type { Product } from '@/lib/types';
 import { fallbackImage } from './ProductCard';
 
-export default function ProductGallery({ product }: { product: Product }) {
-  const images = [...product.images].sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.display_order - b.display_order);
-  const [active, setActive] = useState(primaryImage(product)?.image ?? fallbackImage(product.name));
+export default function ProductGallery({ product, color = '' }: { product: Product; color?: string }) {
+  const sorted = [...product.images].sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.display_order - b.display_order);
+  // This colour's images first (so the main image matches the selected colour), then untagged ones;
+  // fall back to everything if the colour has none.
+  const forColor = [...sorted.filter((i) => color && i.color === color), ...sorted.filter((i) => !i.color)];
+  const images = forColor.length ? forColor : sorted;
+  const [active, setActive] = useState(images[0]?.image ?? primaryImage(product)?.image ?? fallbackImage(product.name));
   const imgRef = useRef<HTMLImageElement>(null);
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {

@@ -4,6 +4,7 @@
 // buy it now, delivery check and the Fexo Mirror try-on.
 
 import { BadgeCheck, Banknote, Heart, Minus, Plus, RotateCcw, Ruler, ShieldCheck, Sparkles, Truck } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import FexoMirror from '@/components/mirror/Fexomirror';
@@ -17,8 +18,11 @@ import SizeChart from './SizeChart';
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-export default function ProductActions({ product }: { product: Product }) {
-  const variants = [...product.variants].sort((a, b) => SIZE_ORDER.indexOf(a.size) - SIZE_ORDER.indexOf(b.size));
+export default function ProductActions({ product, color = '' }: { product: Product; color?: string }) {
+  // Sizes on offer are the selected colour's variants.
+  const variants = product.variants
+    .filter((v) => v.color === color)
+    .sort((a, b) => SIZE_ORDER.indexOf(a.size) - SIZE_ORDER.indexOf(b.size));
   const firstAvailable = variants.find((v) => v.stock_quantity > 0);
   const [variantId, setVariantId] = useState<number | null>(firstAvailable?.id ?? null);
   const [quantity, setQuantity] = useState(1);
@@ -30,7 +34,7 @@ export default function ProductActions({ product }: { product: Product }) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const router = useRouter();
-  const stocked = inStock(product) || product.variants.length === 0;
+  const stocked = variants.length === 0 ? product.variants.length === 0 || inStock(product) : variants.some((v) => v.stock_quantity > 0);
   const variant = variants.find((v) => v.id === variantId);
   const maxQty = variant ? Math.min(10, variant.stock_quantity) : 10;
   const wishlisted = isWishlisted(product.id);
@@ -49,16 +53,33 @@ export default function ProductActions({ product }: { product: Product }) {
 
   return (
     <div>
-      {product.color && (
+      {product.colors.length > 0 && (
         <div className="fx-pdp-block">
           <div className="fx-pdp-block-title">
             <span style={{ fontWeight: 700, color: 'var(--fx-accent)', textTransform: 'uppercase', letterSpacing: '.08em', fontSize: 12 }}>
-              Colour: <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--fx-muted)' }}>{product.color}</span>
+              Colour: <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--fx-muted)' }}>{color}</span>
             </span>
           </div>
-          <span className="fx-swatch-ring fx-on" title={product.color}>
-            <span className="fx-swatch fx-swatch-lg" style={{ background: colorHex(product.color) }} aria-label={product.color} />
-          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }} role="radiogroup" aria-label="Colour">
+            {product.colors.map((c) => {
+              const soldOut = !product.variants.some((v) => v.color === c && v.stock_quantity > 0);
+              return (
+                <Link
+                  key={c}
+                  href={`?color=${encodeURIComponent(c)}`}
+                  scroll={false}
+                  replace
+                  role="radio"
+                  aria-checked={c === color}
+                  className={`fx-swatch-ring${c === color ? ' fx-on' : ''}`}
+                  title={soldOut ? `${c} (sold out)` : c}
+                  style={soldOut ? { opacity: 0.4 } : undefined}
+                >
+                  <span className="fx-swatch fx-swatch-lg" style={{ background: colorHex(c) }} aria-label={c} />
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
 

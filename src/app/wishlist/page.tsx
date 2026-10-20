@@ -52,9 +52,9 @@ function WishCard({ product }: { product: Product }) {
         {/* Always rendered (even when empty) so every card lines up. */}
         <div className="fx-wish-row fx-wish-meta">
           <span>
-            {product.color && (
-              <span className="fx-swatch" style={{ background: colorHex(product.color) }} title={product.color} aria-label={`Colour: ${product.color}`} />
-            )}
+            {product.colors.map((c) => (
+              <span key={c} className="fx-swatch" style={{ background: colorHex(c) }} title={c} aria-label={`Colour: ${c}`} />
+            ))}
           </span>
           {isOnSale(product) && (
             <span>
@@ -73,7 +73,7 @@ function WishCard({ product }: { product: Product }) {
                 disabled={v.stock_quantity === 0}
                 onClick={() => setVariantId(v.id)}
               >
-                {v.size}
+                {product.colors.length > 1 ? `${v.color} · ${v.size}` : v.size}
               </button>
             ))}
           </div>

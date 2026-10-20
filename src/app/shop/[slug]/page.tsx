@@ -20,10 +20,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProductDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ color?: string }>;
+}) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+
+  // Selected colour lives in the URL (?color=Black) so gallery and buy box agree and links are shareable.
+  const requested = (await searchParams).color;
+  const color =
+    product.colors.find((c) => c === requested) ??
+    product.colors.find((c) => product.variants.some((v) => v.color === c && v.stock_quantity > 0)) ??
+    product.colors[0] ??
+    '';
 
   const [related, completeTheLook] = await Promise.all([
     getRelatedProducts(product, 4).catch(() => []),
@@ -38,7 +52,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const specs: [string, string][] = [
     ['Category', product.category.name],
-    ['Colour', product.color || '—'],
+    ['Colours', product.colors.join(', ') || '—'],
     ['Sizes', sizesList(product).join(', ') || '—'],
     ['SKU', product.sku],
     ['Fabric & care', product.fabric_details || '—'],
@@ -58,7 +72,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </nav>
 
       <div className="fx-pdp">
-        <ProductGallery product={product} />
+        <ProductGallery key={color} product={product} color={color} />
         <div className="fx-pdp-info">
           <span className="fx-eyebrow">{eyebrow}</span>
           <h1>{product.name}</h1>
@@ -85,7 +99,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
           <p className="fx-pdp-tax">Price excludes GST, which is added at checkout.</p>
           {product.short_description && <p className="fx-muted" style={{ lineHeight: 1.7, fontSize: 14, marginBottom: 6 }}>{product.short_description}</p>}
-          <ProductActions product={product} />
+          <ProductActions key={`${product.id}-${color}`} product={product} color={color} />
         </div>
       </div>
 

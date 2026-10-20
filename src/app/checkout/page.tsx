@@ -273,7 +273,7 @@ function Checkout() {
               <img src={l.product.primary_image ?? 'https://placehold.co/108x136/121212/8a8a8a?text=FEXO'} alt="" />
               <div>
                 <strong>{l.product.name}</strong>
-                <span>{[l.product.color && `Colour: ${l.product.color}`, l.variant_size && `Size: ${l.variant_size}`, `Qty: ${l.quantity}`].filter(Boolean).join(' · ')}</span>
+                <span>{[l.variant_color && `Colour: ${l.variant_color}`, l.variant_size && `Size: ${l.variant_size}`, `Qty: ${l.quantity}`].filter(Boolean).join(' · ')}</span>
               </div>
               <b style={{ fontSize: 13 }}>{rupees(l.line_total)}</b>
             </div>

@@ -71,6 +71,9 @@ const NAMED: Record<string, string> = {
   pink: '#e7b7c0',
   yellow: '#e8c547',
   orange: '#d9772b',
+  'navy blue': '#1f2a44',
+  'cement gray': '#a39f97',
+  'olive green': '#5a5f3a',
 };
 
 export function colorHex(name: string | null | undefined): string {

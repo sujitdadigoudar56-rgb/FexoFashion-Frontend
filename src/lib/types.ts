@@ -34,11 +34,16 @@ export interface ProductImage {
   alt_text: string;
   is_primary: boolean;
   display_order: number;
+  /** Colour this image shows; '' = every colour. */
+  color: string;
 }
 
 export interface ProductVariant {
   id: number;
   product: number;
+  /** Variant ID, e.g. FX-OS-01-BLACK-M */
+  sku: string;
+  color: string;
   size: Size;
   stock_quantity: number;
   low_stock_threshold: number;
@@ -69,7 +74,8 @@ export interface Product {
   price: number;
   compare_at_price: number | null;
   gst_percent: number;
-  color: string;
+  /** Colours that have variants, in the store's colour order. */
+  colors: string[];
   available_sizes: string; // comma separated, e.g. "S,M,L,XL"
   is_featured: boolean;
   is_trending: boolean;
@@ -229,7 +235,6 @@ export interface CartLineProduct {
   slug: string;
   price: number;
   compare_at_price: number | null;
-  color: string;
   primary_image: string | null;
 }
 
@@ -238,6 +243,7 @@ export interface CartLine {
   product: CartLineProduct;
   variant: number | null;
   variant_size: string | null;
+  variant_color: string | null;
   quantity: number;
   line_total: number;
   gst_amount: number;
