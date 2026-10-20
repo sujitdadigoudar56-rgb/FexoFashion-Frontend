@@ -9,6 +9,11 @@ import Providers from './providers';
 import './globals.css';
 import './storefront.css';
 
+// Every page reads live data from the Django API (site settings at least), so render on request
+// instead of at build time; otherwise `next build` hangs whenever the API is asleep or down.
+// API responses are still cached via fetch's `revalidate` in lib/data.ts.
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettings();
   return {
