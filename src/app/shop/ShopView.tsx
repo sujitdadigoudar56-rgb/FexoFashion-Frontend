@@ -64,9 +64,13 @@ export default async function ShopView({
       >
         {result.items.length ? (
           <div className="fx-grid-3">
-            {result.items.map((product) => (
-              <ProductCard key={product.id} product={product} colors={state.colors} />
-            ))}
+            {/* One card per selected colour the product comes in, so a Maroon + Cream filter shows both. */}
+            {result.items.flatMap((product) => {
+              const matched = product.colors.filter((c) => state.colors.some((v) => v.toLowerCase() === c.toLowerCase()));
+              return (matched.length ? matched : [undefined]).map((c) => (
+                <ProductCard key={`${product.id}-${c ?? ''}`} product={product} colors={c ? [c] : undefined} />
+              ));
+            })}
           </div>
         ) : (
           <div className="fx-empty">
