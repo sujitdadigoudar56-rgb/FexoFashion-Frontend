@@ -18,12 +18,11 @@ export function fallbackImage(name: string) {
   return `https://placehold.co/600x750/0e0e0e/8a8a8a?text=${encodeURIComponent(name)}`;
 }
 
-export default function ProductCard({ product, colors }: { product: Product; colors?: string[] }) {
+export default function ProductCard({ product, color }: { product: Product; color?: string }) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [adding, setAdding] = useState(false);
-  // When the shop is filtered by colour, show that colour's photos and open the PDP on it.
-  const color = colors?.length ? product.colors.find((c) => colors.some((v) => v.toLowerCase() === c.toLowerCase())) : undefined;
+  // One card per colour (see cardColors): show that colour's photos and open the PDP on it.
   const tinted = color ? product.images.filter((img) => img.color === color) : [];
   const primary = tinted[0] ?? primaryImage(product);
   const secondary = tinted.length ? tinted[1] : secondaryImage(product);
@@ -33,7 +32,7 @@ export default function ProductCard({ product, colors }: { product: Product; col
   const rating = averageRating(product);
   const reviews = reviewCount(product);
   // Quick Add puts the first in-stock size in the bag.
-  const variant = product.variants.find((v) => v.stock_quantity > 0);
+  const variant = product.variants.find((v) => v.stock_quantity > 0 && (!color || v.color === color));
   const soldOut = product.variants.length > 0 && !variant;
 
   const quickAdd = async () => {

@@ -61,6 +61,13 @@ export function reviewCount(product: Product, extra: ProductReview[] = []): numb
   return productReviews(product, extra).length;
 }
 
+/** Colours to render one listing card each for — every colour, or only those
+ *  matching an active colour filter; [undefined] for a colourless product. */
+export function cardColors(product: Product, only: string[] = []): (string | undefined)[] {
+  const list = only.length ? product.colors.filter((c) => only.some((v) => v.toLowerCase() === c.toLowerCase())) : product.colors;
+  return list.length ? list : [undefined];
+}
+
 export function productUrl(product: Product): string {
   return `/shop/${product.slug}`;
 }

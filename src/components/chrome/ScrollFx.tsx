@@ -66,14 +66,29 @@ export default function ScrollFx() {
         });
         ScrollTrigger.refresh();
       });
-      if (waiting && performance.now() - started < MAX_WAIT_MS) {
+      if (!waiting) return;
+      if (performance.now() - started < MAX_WAIT_MS) {
         frame = requestAnimationFrame(wire);
+      } else {
+        // Hydration took too long (slow device/network): show whatever is
+        // still unwired rather than leaving it stuck at the CSS opacity:0.
+        ctx.add(() => {
+          gsap.utils.toArray<HTMLElement>(SELECTOR).forEach((el) => {
+            if (!wired.has(el)) gsap.set(el, { opacity: 1, y: 0 });
+          });
+        });
       }
     };
+
+    // Images above the fold shift layout as they load; re-measure trigger
+    // points so lower sections (e.g. the category grid) still reveal.
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('load', refresh);
 
     wire();
     return () => {
       cancelAnimationFrame(frame);
+      window.removeEventListener('load', refresh);
       ctx.revert();
     };
   }, [pathname]);

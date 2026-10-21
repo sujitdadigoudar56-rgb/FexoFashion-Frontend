@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import RequireAuth, { WhenCartReady } from '@/components/account/RequireAuth';
 import ProductCard from '@/components/product/ProductCard';
+import { cardColors } from '@/lib/product';
 import { useCart } from '@/context/CartContext';
 import { useMessages } from '@/context/MessageContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -219,9 +220,9 @@ function Bag() {
         <section style={{ padding: '24px 0 80px' }}>
           <h2 className="fx-h-title" style={{ fontSize: 26, marginBottom: 20 }}>You May Also Like</h2>
           <div className="fx-grid">
-            {alsoLike.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+            {alsoLike.flatMap((p) =>
+              cardColors(p).map((c) => <ProductCard key={`${p.id}-${c ?? ''}`} product={p} color={c} />)
+            )}
           </div>
         </section>
       )}

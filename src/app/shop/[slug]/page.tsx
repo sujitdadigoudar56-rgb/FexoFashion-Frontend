@@ -9,7 +9,7 @@ import RecentlyViewed from '@/components/product/RecentlyViewed';
 import Stars from '@/components/ui/Stars';
 import { getCompleteTheLook, getProductBySlug, getRelatedProducts } from '@/lib/data';
 import { rupees } from '@/lib/format';
-import { averageRating, discountPercent, isOnSale, reviewCount, sizesList } from '@/lib/product';
+import { averageRating, cardColors, discountPercent, isOnSale, reviewCount, sizesList } from '@/lib/product';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -120,9 +120,9 @@ export default async function ProductDetailPage({
         <section className="fx-spec-section">
           <h2>You May Also Like</h2>
           <div className="fx-grid">
-            {suggestions.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+            {suggestions.flatMap((p) =>
+              cardColors(p).map((c) => <ProductCard key={`${p.id}-${c ?? ''}`} product={p} color={c} />)
+            )}
           </div>
         </section>
       )}

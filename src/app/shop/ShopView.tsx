@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import ProductCard from '@/components/product/ProductCard';
+import { cardColors } from '@/lib/product';
 import { getFilteredProducts, getProductFacets } from '@/lib/data';
 import type { Category, Collection } from '@/lib/types';
 import ShopPagination from './ShopPagination';
@@ -64,13 +65,12 @@ export default async function ShopView({
       >
         {result.items.length ? (
           <div className="fx-grid-3">
-            {/* One card per selected colour the product comes in, so a Maroon + Cream filter shows both. */}
-            {result.items.flatMap((product) => {
-              const matched = product.colors.filter((c) => state.colors.some((v) => v.toLowerCase() === c.toLowerCase()));
-              return (matched.length ? matched : [undefined]).map((c) => (
-                <ProductCard key={`${product.id}-${c ?? ''}`} product={product} colors={c ? [c] : undefined} />
-              ));
-            })}
+            {/* One card per colour; with a colour filter, only the matching colours. */}
+            {result.items.flatMap((product) =>
+              cardColors(product, state.colors).map((c) => (
+                <ProductCard key={`${product.id}-${c ?? ''}`} product={product} color={c} />
+              ))
+            )}
           </div>
         ) : (
           <div className="fx-empty">

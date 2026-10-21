@@ -1,3 +1,4 @@
+import { cardColors } from '@/lib/product';
 import type { Product } from '@/lib/types';
 import ProductCard from './ProductCard';
 
@@ -13,9 +14,9 @@ export default function ProductGrid({
   }
   return (
     <div className="fx-grid">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
+      {products.flatMap((product) =>
+        cardColors(product).map((c) => <ProductCard key={`${product.id}-${c ?? ''}`} product={product} color={c} />)
+      )}
     </div>
   );
 }
