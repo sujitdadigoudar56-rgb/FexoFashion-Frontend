@@ -126,6 +126,8 @@ textarea.fx-control{height:auto;padding:12px 14px;line-height:1.5;}
 .fx-swatch-lg{width:30px;height:30px;}
 .fx-swatch-ring{padding:3px;border-radius:50%;border:1px solid transparent;display:inline-flex;}
 .fx-swatch-ring.fx-on{border-color:var(--fx-accent);}
+.fx-swatch-ring.fx-soldout{position:relative;}
+.fx-swatch-ring.fx-soldout::after{content:"";position:absolute;left:50%;top:4px;bottom:4px;width:2px;background:#d33;transform:translateX(-50%) rotate(45deg);pointer-events:none;}
 .fx-active-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 .fx-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;background:var(--fx-secondary);border:1px solid var(--fx-line-soft);border-radius:999px;font-size:12px;}
 .fx-chip button{background:none;border:none;display:flex;color:var(--fx-muted);padding:0;}

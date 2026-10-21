@@ -73,9 +73,8 @@ export default function ProductActions({ product, color = '' }: { product: Produ
                   replace
                   role="radio"
                   aria-checked={c === color}
-                  className={`fx-swatch-ring${c === color ? ' fx-on' : ''}`}
+                  className={`fx-swatch-ring${c === color ? ' fx-on' : ''}${soldOut ? ' fx-soldout' : ''}`}
                   title={soldOut ? `${c} (sold out)` : c}
-                  style={soldOut ? { opacity: 0.4 } : undefined}
                 >
                   <span className="fx-swatch fx-swatch-lg" style={{ background: colorHex(c) }} aria-label={c} />
                 </Link>
