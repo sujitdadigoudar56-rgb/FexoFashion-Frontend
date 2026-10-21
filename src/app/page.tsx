@@ -186,6 +186,7 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Follow the House (@fexo Instagram grid) hidden for now — remove this comment wrapper to bring it back.
       {instagramPosts.length > 0 && (
         <section className="fx-section" style={{ paddingTop: 0 }}>
           <div className="fx-container">
@@ -204,7 +205,7 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-      )}
+      )} */}
     </>
   );
 }
