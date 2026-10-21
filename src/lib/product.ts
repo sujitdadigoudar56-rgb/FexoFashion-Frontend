@@ -64,7 +64,8 @@ export function reviewCount(product: Product, extra: ProductReview[] = []): numb
 /** Colours to render one listing card each for — every colour, or only those
  *  matching an active colour filter; [undefined] for a colourless product. */
 export function cardColors(product: Product, only: string[] = []): (string | undefined)[] {
-  const list = only.length ? product.colors.filter((c) => only.some((v) => v.toLowerCase() === c.toLowerCase())) : product.colors;
+  const colors = product.colors ?? [];
+  const list = only.length ? colors.filter((c) => only.some((v) => v.toLowerCase() === c.toLowerCase())) : colors;
   return list.length ? list : [undefined];
 }
 

@@ -23,7 +23,7 @@ export default function ProductCard({ product, color }: { product: Product; colo
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [adding, setAdding] = useState(false);
   // One card per colour (see cardColors): show that colour's photos and open the PDP on it.
-  const tinted = color ? product.images.filter((img) => img.color === color) : [];
+  const tinted = color ? (product.images ?? []).filter((img) => img.color === color) : [];
   const primary = tinted[0] ?? primaryImage(product);
   const secondary = tinted.length ? tinted[1] : secondaryImage(product);
   const href = color ? `${productUrl(product)}?color=${encodeURIComponent(color)}` : productUrl(product);
@@ -94,7 +94,7 @@ export default function ProductCard({ product, color }: { product: Product; colo
             </>
           )}
         </div>
-        {product.colors.length > 0 && (
+        {product.colors?.length > 0 && (
           <div className="fx-pcard-colors" title={product.colors.join(', ')}>
             {product.colors.map((c) => (
               <span key={c} className="fx-swatch" style={{ background: colorHex(c) }} aria-label={`Colour: ${c}`} />

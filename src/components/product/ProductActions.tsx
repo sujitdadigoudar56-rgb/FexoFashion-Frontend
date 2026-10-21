@@ -17,6 +17,8 @@ import type { Product } from '@/lib/types';
 import SizeChart from './SizeChart';
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+// Fexo Mirror try-on is switched off for now; flip to true to bring it back.
+const MIRROR_ENABLED = false;
 
 export default function ProductActions({ product, color = '' }: { product: Product; color?: string }) {
   // Sizes on offer are the selected colour's variants.
@@ -143,9 +145,11 @@ export default function ProductActions({ product, color = '' }: { product: Produ
       <button type="button" className="fx-btn fx-btn-block" style={{ marginTop: 10 }} disabled={!stocked || busy !== null} onClick={() => add('buy')}>
         {busy === 'buy' ? 'Please wait…' : 'Buy it now'}
       </button>
-      <button type="button" className="fx-btn fx-btn-block" style={{ marginTop: 10, border: '1px dashed var(--fx-line)' }} onClick={() => setMirrorOpen(true)}>
-        <Sparkles size={14} aria-hidden /> Try in Fexo Mirror
-      </button>
+      {MIRROR_ENABLED && (
+        <button type="button" className="fx-btn fx-btn-block" style={{ marginTop: 10, border: '1px dashed var(--fx-line)' }} onClick={() => setMirrorOpen(true)}>
+          <Sparkles size={14} aria-hidden /> Try in Fexo Mirror
+        </button>
+      )}
 
       <div className="fx-pdp-block" style={{ marginTop: 22 }}>
         <div className="fx-pdp-block-title">Check delivery</div>
@@ -172,12 +176,14 @@ export default function ProductActions({ product, color = '' }: { product: Produ
         <span className="fx-icon-text"><ShieldCheck size={14} aria-hidden /> Secure checkout</span>
       </div>
 
-      <FexoMirror
-        open={mirrorOpen}
-        onClose={() => setMirrorOpen(false)}
-        garmentImageUrl={product.images?.[0]?.image ?? ''}
-        garmentName={product.name}
-      />
+      {MIRROR_ENABLED && (
+        <FexoMirror
+          open={mirrorOpen}
+          onClose={() => setMirrorOpen(false)}
+          garmentImageUrl={product.images?.[0]?.image ?? ''}
+          garmentName={product.name}
+        />
+      )}
     </div>
   );
 }
