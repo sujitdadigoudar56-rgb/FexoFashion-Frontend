@@ -168,7 +168,7 @@ export default async function HomePage() {
                 <h2>From Our Clientele</h2>
               </div>
             </div>
-            <div className="fx-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
+            <div className="fx-grid fx-grid-thirds">
               {testimonials.map((t) => (
                 <div key={t.id} className="fx-reveal" style={{ border: '1px solid var(--fx-line-soft)', padding: 32 }}>
                   <StarRating />
@@ -196,7 +196,7 @@ export default async function HomePage() {
                 <h2>Follow the House</h2>
               </div>
             </div>
-            <div className="fx-cat-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
+            <div className="fx-cat-grid fx-insta-grid">
               {instagramPosts.map((post) => (
                 <a key={post.id} href={post.link_url || '#'} className="fx-cat-tile" style={{ aspectRatio: '1/1' }}>
                   <img src={post.image} alt="Instagram" />

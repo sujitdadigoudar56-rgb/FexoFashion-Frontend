@@ -15,7 +15,7 @@ export default async function JournalPage() {
       <PageHeader eyebrow="Editorial" title="The Journal" />
       <div className="fx-section" style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="fx-container">
-          <div className="fx-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
+          <div className="fx-grid fx-grid-thirds">
             {posts.length === 0 && (
               <p className="fx-muted">Journal entries will appear here once published in the admin dashboard.</p>
             )}
