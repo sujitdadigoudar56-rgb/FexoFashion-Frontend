@@ -30,6 +30,15 @@ export default function ScrollFx() {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    // Opening or reloading the site starts at the top, not where the last
+    // visit stopped scrolling. 'manual' is set only as the page unloads, so
+    // in-app back/forward still restores the scroll position.
+    history.scrollRestoration = 'auto';
+    if (!location.hash) window.scrollTo(0, 0);
+    const startAtTopNextLoad = () => {
+      history.scrollRestoration = 'manual';
+    };
+    window.addEventListener('pagehide', startAtTopNextLoad);
     if (!lenis) {
       lenis = new Lenis({ duration: 1.1, smoothWheel: true });
       const raf = (time: number) => {
@@ -38,6 +47,7 @@ export default function ScrollFx() {
       };
       requestAnimationFrame(raf);
     }
+    return () => window.removeEventListener('pagehide', startAtTopNextLoad);
   }, []);
 
   useEffect(() => {
@@ -45,17 +55,31 @@ export default function ScrollFx() {
     const wired = new WeakSet<Element>();
     const started = performance.now();
     let frame = 0;
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(wire);
+    };
 
-    const wire = () => {
+    function wire() {
       let waiting = false;
+      let added = false;
       ctx.add(() => {
         gsap.utils.toArray<HTMLElement>(SELECTOR).forEach((el) => {
           if (wired.has(el)) return;
           if (!isHydrated(el)) {
-            waiting = true;
+            if (performance.now() - started < MAX_WAIT_MS) {
+              waiting = true;
+              return;
+            }
+            // Hydration took too long (slow device/network): show it rather
+            // than leaving it stuck at the CSS opacity:0.
+            wired.add(el);
+            gsap.set(el, { opacity: 1, y: 0 });
+            added = true;
             return;
           }
           wired.add(el);
+          added = true;
           gsap.to(el, {
             opacity: 1,
             y: 0,
@@ -64,21 +88,16 @@ export default function ScrollFx() {
             scrollTrigger: { trigger: el, start: 'top 88%' },
           });
         });
-        ScrollTrigger.refresh();
+        if (added) ScrollTrigger.refresh();
       });
-      if (!waiting) return;
-      if (performance.now() - started < MAX_WAIT_MS) {
-        frame = requestAnimationFrame(wire);
-      } else {
-        // Hydration took too long (slow device/network): show whatever is
-        // still unwired rather than leaving it stuck at the CSS opacity:0.
-        ctx.add(() => {
-          gsap.utils.toArray<HTMLElement>(SELECTOR).forEach((el) => {
-            if (!wired.has(el)) gsap.set(el, { opacity: 1, y: 0 });
-          });
-        });
-      }
-    };
+      if (waiting) schedule();
+    }
+
+    // A client-side navigation (e.g. the logo link) runs this before the new
+    // page has streamed in, so wire elements whenever they are added to the
+    // DOM, not just the ones present right now.
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // Images above the fold shift layout as they load; re-measure trigger
     // points so lower sections (e.g. the category grid) still reveal.
@@ -87,6 +106,7 @@ export default function ScrollFx() {
 
     wire();
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener('load', refresh);
       ctx.revert();

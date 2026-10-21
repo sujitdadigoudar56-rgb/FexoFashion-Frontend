@@ -56,7 +56,7 @@ export default async function HomePage() {
           <h1 className="fx-serif">
             Live in
             <br />
-            Fashion.
+            Style.
           </h1>
           <p>Precision-cut silhouettes, uncompromising fabric, and a wardrobe built for permanence — not trend cycles.</p>
           <MagneticLink href="/shop" className="fx-btn fx-btn-solid fx-magnetic">
@@ -159,6 +159,7 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* From Our Clientele (testimonials) hidden for now — remove this comment wrapper to bring it back.
       {testimonials.length > 0 && (
         <section className="fx-section">
           <div className="fx-container">
@@ -184,7 +185,7 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-      )}
+      )} */}
 
       {/* Follow the House (@fexo Instagram grid) hidden for now — remove this comment wrapper to bring it back.
       {instagramPosts.length > 0 && (
